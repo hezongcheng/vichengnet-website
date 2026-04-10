@@ -1,0 +1,79 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  role         String   @default("admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Post {
+  id             String     @id @default(cuid())
+  title          String
+  slug           String     @unique
+  summary        String?
+  content        String     @db.Text
+  coverImage     String?
+  category       String?
+  tags           String[]
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String?
+  status         PostStatus @default(DRAFT)
+  publishedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([slug])
+  @@index([category])
+}
+
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String?
+  value     String   @db.Text
+  type      String   @default("text")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model VisitEvent {
+  id          String   @id @default(cuid())
+  path        String
+  visitorId   String
+  sessionId   String?
+  ip          String?
+  country     String?
+  city        String?
+  referer     String?
+  refererHost String?
+  userAgent   String?
+  deviceType  String?
+  browser     String?
+  os          String?
+  createdAt   DateTime @default(now())
+
+  @@index([path, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([refererHost, createdAt])
+  @@index([ip, createdAt])
+}
