@@ -12,10 +12,10 @@ export default function CommentsGiscus() {
       <div className="mt-6">
         <Giscus
           id="comments"
-          repo="hezongcheng/vichengnet"
-          repoId="R_kgDOR9W8iQ"
-          category="General"
-          categoryId="DIC_kwDOR9W8ic4C6bf3"
+          repo="hezongcheng/vichengnet-website"
+          repoId="R_kgDOR_MC5w"
+          category="Announcements"
+          categoryId="DIC_kwDOR_MC584C6ip9"
           mapping="pathname"
           strict="0"
           reactionsEnabled="1"
