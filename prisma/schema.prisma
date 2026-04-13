@@ -77,3 +77,31 @@ model VisitEvent {
   @@index([refererHost, createdAt])
   @@index([ip, createdAt])
 }
+
+model NavCategory {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  label     String
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sites     NavSite[]
+
+  @@index([sortOrder])
+}
+
+model NavSite {
+  id          String      @id @default(cuid())
+  categoryId  String
+  name        String
+  url         String
+  description String?
+  tags        String[]
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  category    NavCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, sortOrder])
+  @@index([url])
+}

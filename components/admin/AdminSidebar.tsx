@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, FileText, Home, SearchCode, Settings } from 'lucide-react';
+import { BarChart3, Compass, FileText, Home, SearchCode, Settings } from 'lucide-react';
 
 const items = [
   { href: '/admin', label: '仪表盘', icon: Home },
   { href: '/admin/posts', label: '文章管理', icon: FileText },
+  { href: '/admin/nav', label: '导航管理', icon: Compass },
   { href: '/admin/analytics', label: '访问统计', icon: BarChart3 },
   { href: '/admin/seo', label: 'SEO 配置', icon: SearchCode },
   { href: '/admin/settings', label: '系统设置', icon: Settings },
@@ -25,9 +26,10 @@ export default function AdminSidebar() {
       <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = item.href === '/admin'
-            ? pathname === '/admin'
-            : pathname === item.href || pathname.startsWith(item.href + '/');
+          const active =
+            item.href === '/admin'
+              ? pathname === '/admin'
+              : pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}

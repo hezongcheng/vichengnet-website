@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -9,6 +9,7 @@ import ThemeToggle from '@/components/site/ThemeToggle';
 const navItems = [
   { href: '/', label: '首页' },
   { href: '/posts', label: '文章' },
+  { href: '/nav', label: '导航' },
   { href: '/projects', label: '项目' },
   { href: '/about', label: '关于' },
   { href: '/search', label: '搜索' },
@@ -97,3 +98,4 @@ export default function SiteHeader() {
     </header>
   );
 }
+
