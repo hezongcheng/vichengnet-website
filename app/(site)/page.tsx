@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Eye } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import Container from '@/components/site/Container';
@@ -8,6 +9,19 @@ import { getPathPvMap, getPopularPostSlugs } from '@/lib/analytics';
 import { getContentBlock } from '@/lib/content';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
+
+export const metadata: Metadata = {
+  title: '首页',
+  description: '维成小站首页，持续更新前端开发、AI 工具实践、建站经验与项目复盘内容。',
+  keywords: ['首页', '技术博客', '前端开发', 'AI 工具', '建站经验'],
+  alternates: {
+    canonical: '/zh',
+    languages: {
+      'zh-CN': '/zh',
+      'en-US': '/en',
+    },
+  },
+};
 
 export default async function HomePage() {
   const locale = getRequestLocale();
@@ -37,23 +51,25 @@ export default async function HomePage() {
       <SiteHeader />
       <Container>
         <section className="border-b border-neutral-200/80 py-12 dark:border-neutral-800/80 md:py-16">
-          <p className="text-sm text-neutral-400 dark:text-neutral-500">{isEn ? "Hi, I'm Vicheng." : '你好，我是维成。'}</p>
+          <p className="text-sm text-neutral-400 dark:text-neutral-500">
+            {isEn ? "Hi, I'm Vicheng." : '你好，我是维成。'}
+          </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight md:text-6xl">
             {heroTitle?.value || (isEn ? 'Vicheng Notes' : '维成小站')}
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 dark:text-neutral-400 md:text-lg">
-            {heroDesc?.value || (isEn ? 'A minimal and content-first personal website.' : '一个简洁、安静、内容优先的个人站点。')}
+            {heroDesc?.value || (isEn ? 'A minimal, content-first tech blog.' : '专注前端开发、AI 工具实践与建站经验的内容型博客。')}
           </p>
         </section>
 
         <section className="py-10 md:py-12">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold tracking-tight">{isEn ? 'Recent writing' : '最近文章'}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">{isEn ? 'Latest Articles' : '最新文章'}</h2>
             <a
               href={withLocalePrefix('/posts', locale)}
               className="text-sm text-neutral-500 transition hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
             >
-              {isEn ? 'more' : '更多'}
+              {isEn ? 'View all' : '查看全部'}
             </a>
           </div>
 
@@ -109,8 +125,8 @@ export default async function HomePage() {
         {popularPosts.length ? (
           <section className="border-t border-neutral-200/80 py-10 dark:border-neutral-800/80 md:py-12">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-semibold tracking-tight">{isEn ? 'Popular' : '热门文章'}</h2>
-              <span className="text-sm text-neutral-400 dark:text-neutral-500">{isEn ? 'By reading heat' : '按阅读热度'}</span>
+              <h2 className="text-2xl font-semibold tracking-tight">{isEn ? 'Popular Reads' : '热门阅读'}</h2>
+              <span className="text-sm text-neutral-400 dark:text-neutral-500">{isEn ? 'Most viewed posts' : '按阅读量排序'}</span>
             </div>
 
             <div className="divide-y divide-neutral-200/80 dark:divide-neutral-800/80">

@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import SiteHeader from '@/components/site/SiteHeader';
 import SiteFooter from '@/components/site/SiteFooter';
 import TrackPageView from '@/components/site/TrackPageView';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { withLocalePrefix } from '@/lib/i18n/config';
 
 type Props = {
   params: { slug: string };
@@ -12,7 +15,18 @@ function decodeSlug(slug: string) {
   return decodeURIComponent(slug);
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const category = decodeSlug(params.slug);
+  return {
+    title: `分类：${category}`,
+    description: `查看“${category}”分类下的全部技术文章。`,
+    keywords: [category, '分类文章', '技术博客'],
+  };
+}
+
 export default async function CategoryPostsPage({ params }: Props) {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
   const category = decodeSlug(params.slug);
 
   const posts = await prisma.post.findMany({
@@ -31,21 +45,23 @@ export default async function CategoryPostsPage({ params }: Props) {
       <SiteHeader />
 
       <section className="border-b py-10">
-        <h1 className="text-4xl font-bold tracking-tight">分类：{category}</h1>
-        <p className="mt-4 text-base leading-8 text-neutral-600 dark:text-neutral-400">共 {posts.length} 篇相关文章。</p>
+        <h1 className="text-4xl font-bold tracking-tight">{isEn ? `Category: ${category}` : `分类：${category}`}</h1>
+        <p className="mt-4 text-base leading-8 text-neutral-600 dark:text-neutral-400">
+          {isEn ? `${posts.length} related posts found.` : `共 ${posts.length} 篇相关文章。`}
+        </p>
       </section>
 
       <section className="py-10">
         <div className="space-y-2">
           {posts.map((post) => (
-            <a key={post.id} href={`/posts/${post.slug}`} className="block border-t py-5 last:border-b">
+            <a key={post.id} href={withLocalePrefix(`/posts/${post.slug}`, locale)} className="block border-t py-5 last:border-b">
               <div className="flex items-start justify-between gap-6">
                 <div className="min-w-0">
                   <h2 className="text-xl font-semibold tracking-tight">{post.title}</h2>
                   <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">{post.summary}</p>
                 </div>
                 <time className="shrink-0 pt-1 text-sm text-neutral-400">
-                  {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('zh-CN') : '--'}
+                  {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}
                 </time>
               </div>
             </a>

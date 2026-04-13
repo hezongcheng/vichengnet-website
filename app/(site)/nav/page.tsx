@@ -10,9 +10,10 @@ import { getRequestLocale } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
   title: '导航',
-  description: '收集常用网站与工具，按主题分组，方便快速访问。',
+  description: '精选开发、设计、AI 与效率工具网站导航，支持按主题快速查找高质量资源。',
+  keywords: ['网站导航', '开发工具', 'AI 工具', '设计资源', '效率工具'],
   alternates: {
-    canonical: '/nav',
+    canonical: '/zh/nav',
     languages: {
       'zh-CN': '/zh/nav',
       'en-US': '/en/nav',
@@ -49,11 +50,11 @@ export default async function NavPage() {
       <SiteHeader />
       <Container>
         <section className="border-b border-neutral-200/80 py-12 dark:border-neutral-800/80 md:py-16">
-          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{isEn ? 'Directory' : '导航'}</h1>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{isEn ? 'Resource Directory' : '资源导航'}</h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-neutral-600 dark:text-neutral-400">
             {isEn
-              ? 'A curated directory of frequently used websites and tools.'
-              : '参考导航站的信息结构，结合当前站点风格整理的常用链接目录。'}
+              ? 'A curated collection of developer tools, AI products, and design resources.'
+              : '按主题整理常用开发工具、AI 产品与设计资源，帮助你快速定位高价值站点。'}
           </p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
             {categories.map((category) => (
