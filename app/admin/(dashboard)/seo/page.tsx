@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import ContentEditorForm from '@/components/admin/ContentEditorForm';
 import { defaultLocale, isLocale, type Locale } from '@/lib/i18n/config';
+import { findContentBlock } from '@/lib/content-store';
 
 export default async function AdminSeoPage({
   searchParams,
@@ -11,8 +11,8 @@ export default async function AdminSeoPage({
   const locale: Locale = isLocale(requested) ? requested : defaultLocale;
 
   const [titleBlock, descBlock] = await Promise.all([
-    prisma.contentBlock.findFirst({ where: { key: 'seo.default.title', locale } }),
-    prisma.contentBlock.findFirst({ where: { key: 'seo.default.description', locale } }),
+    findContentBlock('seo.default.title', locale),
+    findContentBlock('seo.default.description', locale),
   ]);
 
   return (

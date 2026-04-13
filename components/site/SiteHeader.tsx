@@ -60,7 +60,6 @@ export default function SiteHeader() {
 
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <div className="hidden text-xs text-neutral-400 lg:block dark:text-neutral-500">{messages.header.theme}</div>
             <ThemeToggle />
             <button
               type="button"

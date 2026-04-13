@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "NavCategory" (
+CREATE TABLE IF NOT EXISTS "NavCategory" (
     "id" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "label" TEXT NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE "NavCategory" (
 );
 
 -- CreateTable
-CREATE TABLE "NavSite" (
+CREATE TABLE IF NOT EXISTS "NavSite" (
     "id" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -26,16 +26,26 @@ CREATE TABLE "NavSite" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NavCategory_key_key" ON "NavCategory"("key");
+CREATE UNIQUE INDEX IF NOT EXISTS "NavCategory_key_key" ON "NavCategory"("key");
 
 -- CreateIndex
-CREATE INDEX "NavCategory_sortOrder_idx" ON "NavCategory"("sortOrder");
+CREATE INDEX IF NOT EXISTS "NavCategory_sortOrder_idx" ON "NavCategory"("sortOrder");
 
 -- CreateIndex
-CREATE INDEX "NavSite_categoryId_sortOrder_idx" ON "NavSite"("categoryId", "sortOrder");
+CREATE INDEX IF NOT EXISTS "NavSite_categoryId_sortOrder_idx" ON "NavSite"("categoryId", "sortOrder");
 
 -- CreateIndex
-CREATE INDEX "NavSite_url_idx" ON "NavSite"("url");
+CREATE INDEX IF NOT EXISTS "NavSite_url_idx" ON "NavSite"("url");
 
 -- AddForeignKey
-ALTER TABLE "NavSite" ADD CONSTRAINT "NavSite_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "NavCategory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'NavSite_categoryId_fkey'
+  ) THEN
+    ALTER TABLE "NavSite"
+      ADD CONSTRAINT "NavSite_categoryId_fkey"
+      FOREIGN KEY ("categoryId") REFERENCES "NavCategory"("id")
+      ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END$$;

@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import SettingsForm from '@/components/admin/SettingsForm';
 import { defaultLocale, isLocale, type Locale } from '@/lib/i18n/config';
+import { findContentBlocksByKeys } from '@/lib/content-store';
 
 const settingDefinitions = [
   { key: 'site.name', title: '站点名称', type: 'text', description: '显示在页头和默认 SEO 中' },
@@ -21,12 +21,10 @@ export default async function AdminSettingsPage({
   const requested = searchParams?.locale || '';
   const locale: Locale = isLocale(requested) ? requested : defaultLocale;
 
-  const blocks = await prisma.contentBlock.findMany({
-    where: {
-      key: { in: settingDefinitions.map((item) => item.key) },
-      locale,
-    },
-  });
+  const blocks = await findContentBlocksByKeys(
+    settingDefinitions.map((item) => item.key),
+    locale
+  );
 
   const items = settingDefinitions.map((definition) => {
     const saved = blocks.find((block) => block.key === definition.key);
