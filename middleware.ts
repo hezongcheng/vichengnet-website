@@ -5,7 +5,7 @@ import { defaultLocale, isLocale } from '@/lib/i18n/config';
 import { localeByCountry } from '@/lib/request-geo';
 
 function isPublicAsset(pathname: string) {
-  return pathname.startsWith('/_next') || pathname.startsWith('/api') || /\.[^/]+$/.test(pathname);
+  return pathname.startsWith('/_next') || /\.[^/]+$/.test(pathname);
 }
 
 export async function middleware(req: NextRequest) {
@@ -16,6 +16,26 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith('/admin/login')) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/api')) {
+    const protectedApiPrefixes = ['/api/posts', '/api/nav', '/api/settings', '/api/content', '/api/upload'];
+    const needsAuth = protectedApiPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+    if (!needsAuth) {
+      return NextResponse.next();
+    }
+
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token || token.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     return NextResponse.next();
   }
 

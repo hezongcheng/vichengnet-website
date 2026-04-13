@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Locale } from '@/lib/i18n/config';
 
 type SettingItem = {
+  section?: string;
   key: string;
   title: string;
   value: string;
@@ -50,27 +51,40 @@ export default function SettingsForm({
 
   return (
     <div className="space-y-6">
-      {items.map((item) => (
-        <div key={item.key} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
-          <label className="mb-2 block text-sm font-medium">{item.title}</label>
-          {item.description ? (
-            <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">{item.description}</p>
-          ) : null}
-          {item.type === 'textarea' ? (
-            <textarea
-              value={item.value}
-              onChange={(e) => updateItem(item.key, e.target.value)}
-              rows={5}
-              className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
-            />
-          ) : (
-            <input
-              value={item.value}
-              onChange={(e) => updateItem(item.key, e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
-            />
-          )}
-        </div>
+      {Array.from(
+        items.reduce((map, item) => {
+          const section = item.section || (locale === 'en' ? 'Other Settings' : '其他设置');
+          const list = map.get(section) || [];
+          list.push(item);
+          map.set(section, list);
+          return map;
+        }, new Map<string, SettingItem[]>())
+      ).map(([section, sectionItems]) => (
+        <section key={section} className="space-y-4">
+          <h3 className="text-lg font-semibold tracking-tight">{section}</h3>
+          {sectionItems.map((item) => (
+            <div key={item.key} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+              <label className="mb-2 block text-sm font-medium">{item.title}</label>
+              {item.description ? (
+                <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">{item.description}</p>
+              ) : null}
+              {item.type === 'textarea' ? (
+                <textarea
+                  value={item.value}
+                  onChange={(e) => updateItem(item.key, e.target.value)}
+                  rows={5}
+                  className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                />
+              ) : (
+                <input
+                  value={item.value}
+                  onChange={(e) => updateItem(item.key, e.target.value)}
+                  className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                />
+              )}
+            </div>
+          ))}
+        </section>
       ))}
 
       {error ? <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">{error}</div> : null}

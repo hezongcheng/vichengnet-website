@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { defaultLocale, isLocale } from '@/lib/i18n/config';
 import { contentSchema } from '@/lib/validators/content';
 import { findContentBlock, saveContentBlock } from '@/lib/content-store';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 function getLocale(req: NextRequest) {
   const localeParam = req.nextUrl.searchParams.get('locale') || '';
@@ -9,6 +10,9 @@ function getLocale(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: { key: string } }) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const key = decodeURIComponent(params.key);
   const locale = getLocale(req);
   const block = await findContentBlock(key, locale);
@@ -21,6 +25,9 @@ export async function GET(req: NextRequest, { params }: { params: { key: string 
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { key: string } }) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const key = decodeURIComponent(params.key);
   const locale = getLocale(req);
   const json = await req.json();

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const site = await prisma.navSite.findUnique({
     where: { id: params.id },
     select: { categoryId: true },

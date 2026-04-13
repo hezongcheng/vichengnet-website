@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
 import AdminLoginClient from './AdminLoginClient';
+import { getAdminLocale } from '@/lib/i18n/admin';
 
 export default function AdminLoginPage() {
+  const locale = getAdminLocale();
+
   return (
     <Suspense fallback={<LoginSkeleton />}>
-      <AdminLoginClient />
+      <AdminLoginClient locale={locale} />
     </Suspense>
   );
 }

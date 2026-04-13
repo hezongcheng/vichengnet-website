@@ -1,9 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import NavManager from '@/components/admin/NavManager';
+import { getAdminLocale } from '@/lib/i18n/admin';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminNavPage() {
+  const locale = getAdminLocale();
+  const isEn = locale === 'en';
+
   let categories: Array<{
     id: string;
     key: string;
@@ -41,10 +45,28 @@ export default async function AdminNavPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight">导航管理</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{isEn ? 'Directory Management' : '导航管理'}</h2>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          维护导航分类和站点，支持增删改查与排序。
+          {isEn ? 'Maintain categories and links with CRUD and ordering.' : '维护导航分类和站点，支持增删改查与排序。'}
         </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          <a
+            href="/zh/nav"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-600 transition hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"
+          >
+            {isEn ? 'Open Frontend (ZH)' : '打开前台（中文）'}
+          </a>
+          <a
+            href="/en/nav"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-600 transition hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"
+          >
+            {isEn ? 'Open Frontend (EN)' : '打开前台（英文）'}
+          </a>
+        </div>
       </div>
       <NavManager initialCategories={categories} />
     </div>

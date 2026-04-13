@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
 

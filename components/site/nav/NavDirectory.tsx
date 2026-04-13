@@ -4,9 +4,16 @@ import { useMemo, useState } from 'react';
 import Card from '@/components/ui/card';
 import type { NavCategory } from '@/lib/nav';
 
-export default function NavDirectory({ categories }: { categories: NavCategory[] }) {
+export default function NavDirectory({
+  categories,
+  locale,
+}: {
+  categories: NavCategory[];
+  locale: 'zh' | 'en';
+}) {
   const [query, setQuery] = useState('');
   const normalized = query.trim().toLowerCase();
+  const isEn = locale === 'en';
 
   const filtered = useMemo(() => {
     if (!normalized) return categories;
@@ -28,22 +35,22 @@ export default function NavDirectory({ categories }: { categories: NavCategory[]
     <section className="py-8 md:py-10">
       <div className="sticky top-0 z-10 -mx-2 mb-8 rounded-2xl border border-neutral-200/80 bg-white/90 p-3 backdrop-blur dark:border-neutral-800/80 dark:bg-neutral-950/90 md:mx-0">
         <label className="block text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
-          Search Links
+          {isEn ? 'Search Links' : '搜索链接'}
         </label>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by name, description, or tag..."
+          placeholder={isEn ? 'Search by name, description, or tag...' : '按名称、描述或标签搜索...'}
           className="mt-2 w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 text-sm outline-none transition focus:border-neutral-400 dark:border-neutral-800 dark:focus:border-neutral-500"
         />
         <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-          {normalized ? `Found ${total} results` : `${total} curated links`}
+          {normalized ? (isEn ? `Found ${total} results` : `找到 ${total} 条结果`) : isEn ? `${total} curated links` : `${total} 个精选链接`}
         </div>
       </div>
 
       {!filtered.length ? (
         <Card className="text-sm text-neutral-500 dark:text-neutral-400">
-          No result found. Try another keyword.
+          {isEn ? 'No result found. Try another keyword.' : '未找到结果，请尝试其他关键词。'}
         </Card>
       ) : null}
 
@@ -67,7 +74,7 @@ export default function NavDirectory({ categories }: { categories: NavCategory[]
                   <Card className="h-full transition group-hover:-translate-y-0.5 group-hover:border-neutral-300 group-hover:shadow-md dark:group-hover:border-neutral-700">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="text-base font-semibold tracking-tight">{site.name}</h3>
-                      <span className="text-xs text-neutral-400 dark:text-neutral-500">Open</span>
+                      <span className="text-xs text-neutral-400 dark:text-neutral-500">{isEn ? 'Open' : '打开'}</span>
                     </div>
                     <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">{site.description}</p>
                     <div className="mt-4 flex flex-wrap gap-2">

@@ -2,25 +2,26 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Compass, FileText, Home, SearchCode, Settings } from 'lucide-react';
+import { Compass, FileText, Home, Settings } from 'lucide-react';
+import type { Locale } from '@/lib/i18n/config';
+import { getAdminMessages } from '@/lib/i18n/admin-messages';
 
-const items = [
-  { href: '/admin', label: '仪表盘', icon: Home },
-  { href: '/admin/posts', label: '文章管理', icon: FileText },
-  { href: '/admin/nav', label: '导航管理', icon: Compass },
-  { href: '/admin/analytics', label: '访问统计', icon: BarChart3 },
-  { href: '/admin/seo', label: 'SEO 配置', icon: SearchCode },
-  { href: '/admin/settings', label: '系统设置', icon: Settings },
-];
-
-export default function AdminSidebar() {
+export default function AdminSidebar({ locale }: { locale: Locale }) {
   const pathname = usePathname();
+  const t = getAdminMessages(locale);
+
+  const items = [
+    { href: '/admin', label: t.nav.dashboard, icon: Home },
+    { href: '/admin/posts', label: t.nav.posts, icon: FileText },
+    { href: '/admin/nav', label: t.nav.nav, icon: Compass },
+    { href: '/admin/settings', label: t.nav.settings, icon: Settings },
+  ];
 
   return (
     <aside className="border-b border-neutral-200 bg-white/90 p-4 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/90 lg:min-h-screen lg:border-b-0 lg:border-r lg:p-6">
       <div className="mb-4 hidden lg:block">
-        <div className="text-lg font-semibold">维成小站</div>
-        <div className="text-sm text-neutral-500 dark:text-neutral-400">Admin Panel</div>
+        <div className="text-lg font-semibold">{t.brand}</div>
+        <div className="text-sm text-neutral-500 dark:text-neutral-400">{t.panel}</div>
       </div>
 
       <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">

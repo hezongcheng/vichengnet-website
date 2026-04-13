@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { postSchema } from '@/lib/validators/post';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 export async function GET() {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const posts = await prisma.post.findMany({
     orderBy: { updatedAt: 'desc' },
   });
@@ -11,6 +15,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const json = await req.json();
   const parsed = postSchema.safeParse(json);
 

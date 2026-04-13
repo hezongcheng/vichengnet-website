@@ -2,18 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { defaultLocale, isLocale } from '@/lib/i18n/config';
 import { contentSchema } from '@/lib/validators/content';
 import { findContentBlocksByKeys, saveContentBlock } from '@/lib/content-store';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 export async function GET(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const localeParam = req.nextUrl.searchParams.get('locale') || '';
   const locale = isLocale(localeParam) ? localeParam : defaultLocale;
-  const blocks = await findContentBlocksByKeys(
-    ['site.name', 'site.footer.domain', 'site.footer.icp', 'home.hero.title', 'home.hero.description', 'about.body', 'seo.default.title', 'seo.default.description'],
-    locale
-  );
+  const sharedKeys = ['site.footer.domain', 'site.footer.icp'];
+  const localeKeys = ['site.name', 'home.hero.title', 'home.hero.description', 'about.body', 'seo.default.title', 'seo.default.description'];
+  const [sharedBlocks, localizedBlocks] = await Promise.all([
+    findContentBlocksByKeys(sharedKeys, defaultLocale),
+    findContentBlocksByKeys(localeKeys, locale),
+  ]);
+  const blocks = [...localizedBlocks, ...sharedBlocks];
   return NextResponse.json(blocks);
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const localeParam = req.nextUrl.searchParams.get('locale') || '';
   const locale = isLocale(localeParam) ? localeParam : defaultLocale;
   const json = await req.json();

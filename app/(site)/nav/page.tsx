@@ -5,7 +5,7 @@ import SiteFooter from '@/components/site/SiteFooter';
 import TrackPageView from '@/components/site/TrackPageView';
 import NavDirectory from '@/components/site/nav/NavDirectory';
 import { prisma } from '@/lib/prisma';
-import { defaultNavCategories, mapDbCategoriesToNav } from '@/lib/nav';
+import { mapDbCategoriesToNav } from '@/lib/nav';
 import { getRequestLocale } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
@@ -27,7 +27,8 @@ export default async function NavPage() {
   const locale = getRequestLocale();
   const isEn = locale === 'en';
 
-  let categories = defaultNavCategories;
+  let categories: ReturnType<typeof mapDbCategoriesToNav> = [];
+  let loadFailed = false;
   try {
     const categoriesRaw = await prisma.navCategory.findMany({
       orderBy: { sortOrder: 'asc' },
@@ -37,11 +38,9 @@ export default async function NavPage() {
         },
       },
     });
-    if (categoriesRaw.length) {
-      categories = mapDbCategoriesToNav(locale, categoriesRaw);
-    }
+    categories = mapDbCategoriesToNav(locale, categoriesRaw);
   } catch {
-    categories = defaultNavCategories;
+    loadFailed = true;
   }
 
   return (
@@ -56,20 +55,36 @@ export default async function NavPage() {
               ? 'A curated collection of developer tools, AI products, and design resources.'
               : '按主题整理常用开发工具、AI 产品与设计资源，帮助你快速定位高价值站点。'}
           </p>
-          <div className="mt-6 flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-            {categories.map((category) => (
-              <a
-                key={category.key}
-                href={`#${category.key}`}
-                className="rounded-full border border-neutral-200 px-3 py-1.5 transition hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
-              >
-                {category.label}
-              </a>
-            ))}
-          </div>
+          {categories.length ? (
+            <div className="mt-6 flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+              {categories.map((category) => (
+                <a
+                  key={category.key}
+                  href={`#${category.key}`}
+                  className="rounded-full border border-neutral-200 px-3 py-1.5 transition hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600"
+                >
+                  {category.label}
+                </a>
+              ))}
+            </div>
+          ) : null}
         </section>
 
-        <NavDirectory categories={categories} />
+        {loadFailed ? (
+          <section className="py-10 text-sm text-neutral-500 dark:text-neutral-400">
+            {isEn
+              ? 'Failed to load directory data. Please check database connection and try again.'
+              : '导航数据加载失败，请检查数据库连接后重试。'}
+          </section>
+        ) : categories.length === 0 ? (
+          <section className="py-10 text-sm text-neutral-500 dark:text-neutral-400">
+            {isEn
+              ? 'No directory data yet. Please add categories and links in Admin > Directory Management.'
+              : '暂无导航数据，请先在后台「导航管理」中新增分类与站点。'}
+          </section>
+        ) : (
+          <NavDirectory categories={categories} locale={locale} />
+        )}
       </Container>
       <SiteFooter />
     </main>

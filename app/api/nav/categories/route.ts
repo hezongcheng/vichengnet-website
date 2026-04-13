@@ -6,8 +6,12 @@ import {
   navCategoryReorderSchema,
   navCategoryUpdateSchema,
 } from '@/lib/validators/nav';
+import { requireAdminApi } from '@/lib/admin-auth';
 
 export async function GET() {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const categories = await prisma.navCategory.findMany({
     orderBy: { sortOrder: 'asc' },
     include: {
@@ -21,6 +25,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const json = await req.json();
   const parsed = navCategoryCreateSchema.safeParse(json);
 
@@ -54,6 +61,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const json = await req.json();
   const parsed = navCategoryUpdateSchema.safeParse(json);
 
@@ -91,6 +101,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const json = await req.json();
   const parsed = navCategoryReorderSchema.safeParse(json);
 
