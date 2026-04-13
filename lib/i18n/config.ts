@@ -22,5 +22,6 @@ export function stripLocalePrefix(pathname: string): string {
 
 export function withLocalePrefix(pathname: string, locale: Locale): string {
   const localPath = stripLocalePrefix(pathname);
+  if (locale === defaultLocale) return localPath;
   return localPath === '/' ? `/${locale}` : `/${locale}${localPath}`;
 }

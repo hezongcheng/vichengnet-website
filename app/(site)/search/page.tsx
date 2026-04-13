@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: '/zh/search',
+    canonical: '/search',
     languages: {
-      'zh-CN': '/zh/search',
+      'zh-CN': '/search',
       'en-US': '/en/search',
     },
   },

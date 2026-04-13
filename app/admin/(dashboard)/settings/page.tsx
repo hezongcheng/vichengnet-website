@@ -2,8 +2,12 @@ import SettingsForm from '@/components/admin/SettingsForm';
 import { findContentBlock } from '@/lib/content-store';
 import { getAdminLocale } from '@/lib/i18n/admin';
 
-export default async function AdminSettingsPage() {
-  const locale = getAdminLocale();
+export default async function AdminSettingsPage({
+  searchParams,
+}: {
+  searchParams?: { locale?: string };
+}) {
+  const locale = getAdminLocale(searchParams?.locale);
   const isEn = locale === 'en';
 
   const sharedKeys = new Set(['site.footer.domain', 'site.footer.icp']);
@@ -67,7 +71,7 @@ export default async function AdminSettingsPage() {
         </p>
         <div className="mt-3 inline-flex rounded-full border border-neutral-200 p-1 text-sm dark:border-neutral-800">
           <a
-            href="/zh/admin/settings"
+            href="/admin/settings?locale=zh"
             className={[
               'rounded-full px-3 py-1.5 transition',
               locale === 'zh'
@@ -78,7 +82,7 @@ export default async function AdminSettingsPage() {
             中文
           </a>
           <a
-            href="/en/admin/settings"
+            href="/admin/settings?locale=en"
             className={[
               'rounded-full px-3 py-1.5 transition',
               locale === 'en'

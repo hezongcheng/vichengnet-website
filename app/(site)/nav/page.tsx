@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   description: '精选开发、设计、AI 与效率工具网站导航，支持按主题快速查找高质量资源。',
   keywords: ['网站导航', '开发工具', 'AI 工具', '设计资源', '效率工具'],
   alternates: {
-    canonical: '/zh/nav',
+    canonical: '/nav',
     languages: {
-      'zh-CN': '/zh/nav',
+      'zh-CN': '/nav',
       'en-US': '/en/nav',
     },
   },

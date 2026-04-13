@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   description: '浏览维成小站全部技术文章，涵盖前端开发、AI 工具、项目实践与建站经验。',
   keywords: ['技术文章', '前端开发', 'Next.js', 'AI 工具', '建站'],
   alternates: {
-    canonical: '/zh/posts',
+    canonical: '/posts',
     languages: {
-      'zh-CN': '/zh/posts',
+      'zh-CN': '/posts',
       'en-US': '/en/posts',
     },
   },

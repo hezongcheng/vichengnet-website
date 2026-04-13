@@ -8,6 +8,7 @@ export function getAdminMessages(locale: Locale) {
       nav: {
         dashboard: 'Dashboard',
         posts: 'Posts',
+        projects: 'Projects',
         nav: 'Directory',
         settings: 'Settings',
       },
@@ -25,12 +26,13 @@ export function getAdminMessages(locale: Locale) {
     nav: {
       dashboard: '仪表盘',
       posts: '文章管理',
+      projects: '项目管理',
       nav: '导航管理',
       settings: '系统设置',
     },
     header: {
       title: '后台管理',
-      desc: '统一管理文章与站点设置',
+      desc: '统一管理文章、项目、导航与站点设置',
       logout: '退出登录',
     },
   } as const;

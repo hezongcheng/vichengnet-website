@@ -238,7 +238,7 @@ export default function NavManager({ initialCategories }: { initialCategories: N
           const createForm = siteCreateForms[category.id] || emptySiteDraft;
 
           return (
-            <section key={category.id} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+            <section key={category.id} className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
               <div className="grid gap-2 md:grid-cols-[1fr_1fr_220px_auto_auto_auto_auto]">
                 <input
                   value={form.labelZh}

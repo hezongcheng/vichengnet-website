@@ -80,8 +80,8 @@ export default async function AdminPostsPage({ searchParams }: Props) {
         </div>
       </form>
 
-      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+        <table className="min-w-[760px] w-full text-sm">
           <thead className="bg-neutral-50 text-left text-neutral-500 dark:bg-neutral-900/60 dark:text-neutral-400">
             <tr>
               <th className="px-4 py-3">{isEn ? 'Title' : '标题'}</th>

@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   description: '了解维成小站的内容方向、作者背景与长期更新计划。',
   keywords: ['关于', '作者介绍', '博客定位', '技术写作'],
   alternates: {
-    canonical: '/zh/about',
+    canonical: '/about',
     languages: {
-      'zh-CN': '/zh/about',
+      'zh-CN': '/about',
       'en-US': '/en/about',
     },
   },

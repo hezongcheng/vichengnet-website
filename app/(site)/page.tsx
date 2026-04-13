@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   description: '维成小站首页，持续更新前端开发、AI 工具实践、建站经验与项目复盘内容。',
   keywords: ['首页', '技术博客', '前端开发', 'AI 工具', '建站经验'],
   alternates: {
-    canonical: '/zh',
+    canonical: '/',
     languages: {
-      'zh-CN': '/zh',
+      'zh-CN': '/',
       'en-US': '/en',
     },
   },

@@ -51,7 +51,7 @@ export default async function AdminNavPage() {
         </p>
         <div className="mt-3 flex flex-wrap gap-2 text-sm">
           <a
-            href="/zh/nav"
+            href="/nav"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border border-neutral-200 px-3 py-1.5 text-neutral-600 transition hover:text-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-100"

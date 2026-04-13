@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, FileText, Home, Settings } from 'lucide-react';
+import { Compass, FileText, FolderKanban, Home, Settings } from 'lucide-react';
 import type { Locale } from '@/lib/i18n/config';
 import { getAdminMessages } from '@/lib/i18n/admin-messages';
 
@@ -13,6 +13,7 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
   const items = [
     { href: '/admin', label: t.nav.dashboard, icon: Home },
     { href: '/admin/posts', label: t.nav.posts, icon: FileText },
+    { href: '/admin/projects', label: t.nav.projects, icon: FolderKanban },
     { href: '/admin/nav', label: t.nav.nav, icon: Compass },
     { href: '/admin/settings', label: t.nav.settings, icon: Settings },
   ];

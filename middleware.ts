@@ -57,6 +57,12 @@ export async function middleware(req: NextRequest) {
   if (isLocale(firstSegment)) {
     const strippedPath = pathname.slice(firstSegment.length + 1) || '/';
 
+    if (firstSegment === defaultLocale) {
+      const canonicalUrl = req.nextUrl.clone();
+      canonicalUrl.pathname = strippedPath;
+      return NextResponse.redirect(canonicalUrl);
+    }
+
     if (strippedPath.startsWith('/admin')) {
       const adminUrl = req.nextUrl.clone();
       adminUrl.pathname = strippedPath;
@@ -76,14 +82,20 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-locale', defaultLocale);
+  const res = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
   const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value;
   const preferredLocale =
     cookieLocale && isLocale(cookieLocale)
       ? cookieLocale
       : localeByCountry(req.headers, defaultLocale, req.headers.get('accept-language'));
-  const redirectUrl = req.nextUrl.clone();
-  redirectUrl.pathname = pathname === '/' ? `/${preferredLocale}` : `/${preferredLocale}${pathname}`;
-  return NextResponse.redirect(redirectUrl);
+  res.cookies.set('NEXT_LOCALE', preferredLocale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+  return res;
 }
 
 export const config = {
