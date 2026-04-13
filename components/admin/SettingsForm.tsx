@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { Locale } from '@/lib/i18n/config';
 
 type SettingItem = {
   key: string;
@@ -10,7 +11,13 @@ type SettingItem = {
   description?: string;
 };
 
-export default function SettingsForm({ initialItems }: { initialItems: SettingItem[] }) {
+export default function SettingsForm({
+  initialItems,
+  locale,
+}: {
+  initialItems: SettingItem[];
+  locale: Locale;
+}) {
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -25,7 +32,7 @@ export default function SettingsForm({ initialItems }: { initialItems: SettingIt
     setMessage('');
     setError('');
 
-    const res = await fetch('/api/settings', {
+    const res = await fetch(`/api/settings?locale=${locale}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items }),

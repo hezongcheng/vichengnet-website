@@ -4,19 +4,24 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import Container from '@/components/site/Container';
+import LanguageSwitcher from '@/components/site/LanguageSwitcher';
 import ThemeToggle from '@/components/site/ThemeToggle';
-
-const navItems = [
-  { href: '/', label: '首页' },
-  { href: '/posts', label: '文章' },
-  { href: '/nav', label: '导航' },
-  { href: '/projects', label: '项目' },
-  { href: '/about', label: '关于' },
-  { href: '/search', label: '搜索' },
-];
+import { getLocaleFromPathname, stripLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
+import { getMessages } from '@/lib/i18n/messages';
 
 export default function SiteHeader() {
-  const pathname = usePathname();
+  const pathname = usePathname() || '/';
+  const locale = getLocaleFromPathname(pathname);
+  const localPath = stripLocalePrefix(pathname);
+  const messages = getMessages(locale);
+  const navItems = [
+    { href: '/', label: messages.header.home },
+    { href: '/posts', label: messages.header.posts },
+    { href: '/nav', label: messages.header.nav },
+    { href: '/projects', label: messages.header.projects },
+    { href: '/about', label: messages.header.about },
+    { href: '/search', label: messages.header.search },
+  ];
   const [open, setOpen] = useState(false);
 
   return (
@@ -24,20 +29,20 @@ export default function SiteHeader() {
       <Container>
         <div className="flex items-center justify-between py-4">
           <div className="flex min-w-0 items-center gap-6">
-            <a href="/" className="shrink-0 text-sm font-semibold tracking-tight">
-              Hi, 维成
+            <a href={withLocalePrefix('/', locale)} className="shrink-0 text-sm font-semibold tracking-tight">
+              {messages.header.brand}
             </a>
 
             <nav className="hidden items-center gap-5 text-sm text-neutral-500 md:flex dark:text-neutral-400">
               {navItems.map((item) => {
                 const active = item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href || pathname.startsWith(item.href + '/');
+                  ? localPath === '/'
+                  : localPath === item.href || localPath.startsWith(item.href + '/');
 
                 return (
                   <a
                     key={item.href}
-                    href={item.href}
+                    href={withLocalePrefix(item.href, locale)}
                     className={[
                       'relative transition hover:text-neutral-900 dark:hover:text-neutral-100',
                       active ? 'text-neutral-900 dark:text-neutral-100' : '',
@@ -54,13 +59,14 @@ export default function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden text-xs text-neutral-400 lg:block dark:text-neutral-500">Theme</div>
+            <LanguageSwitcher />
+            <div className="hidden text-xs text-neutral-400 lg:block dark:text-neutral-500">{messages.header.theme}</div>
             <ThemeToggle />
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 transition hover:bg-neutral-50 md:hidden dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-900"
-              aria-label="切换导航"
+              aria-label={messages.header.toggleNav}
             >
               {open ? <X size={16} /> : <Menu size={16} />}
             </button>
@@ -72,13 +78,13 @@ export default function SiteHeader() {
             <nav className="rounded-2xl border border-neutral-200/80 bg-white/90 p-2 text-sm shadow-sm dark:border-neutral-800/80 dark:bg-neutral-900/90">
               {navItems.map((item) => {
                 const active = item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href || pathname.startsWith(item.href + '/');
+                  ? localPath === '/'
+                  : localPath === item.href || localPath.startsWith(item.href + '/');
 
                 return (
                   <a
                     key={item.href}
-                    href={item.href}
+                    href={withLocalePrefix(item.href, locale)}
                     className={[
                       'block rounded-xl px-3 py-2.5 transition',
                       active

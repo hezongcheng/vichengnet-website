@@ -48,12 +48,16 @@ model Post {
 
 model ContentBlock {
   id        String   @id @default(cuid())
-  key       String   @unique
+  key       String
+  locale    String   @default("zh")
   title     String?
   value     String   @db.Text
   type      String   @default("text")
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+
+  @@unique([key, locale])
+  @@index([key])
 }
 
 model VisitEvent {
@@ -82,6 +86,8 @@ model NavCategory {
   id        String    @id @default(cuid())
   key       String    @unique
   label     String
+  labelZh   String?
+  labelEn   String?
   sortOrder Int       @default(0)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -94,8 +100,12 @@ model NavSite {
   id          String      @id @default(cuid())
   categoryId  String
   name        String
+  nameZh      String?
+  nameEn      String?
   url         String
   description String?
+  descriptionZh String?
+  descriptionEn String?
   tags        String[]
   sortOrder   Int         @default(0)
   createdAt   DateTime    @default(now())

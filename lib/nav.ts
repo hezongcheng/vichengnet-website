@@ -1,7 +1,14 @@
+import type { Locale } from '@/lib/i18n/config';
+
 export type NavSite = {
+  id?: string;
   name: string;
+  nameZh?: string;
+  nameEn?: string;
   url: string;
   description: string;
+  descriptionZh?: string;
+  descriptionEn?: string;
   tags: string[];
 };
 
@@ -9,6 +16,8 @@ export type NavCategory = {
   id?: string;
   key: string;
   label: string;
+  labelZh?: string;
+  labelEn?: string;
   sites: NavSite[];
 };
 
@@ -122,27 +131,48 @@ export function normalizeNavCategoryKey(input: string) {
 }
 
 export function mapDbCategoriesToNav(
+  locale: Locale,
   categories: Array<{
     id: string;
     key: string;
     label: string;
+    labelZh: string | null;
+    labelEn: string | null;
     sites: Array<{
       id: string;
       name: string;
+      nameZh: string | null;
+      nameEn: string | null;
       url: string;
       description: string | null;
+      descriptionZh: string | null;
+      descriptionEn: string | null;
       tags: string[];
     }>;
   }>
 ): NavCategory[] {
+  const isEn = locale === 'en';
   return categories.map((category) => ({
     id: category.id,
     key: category.key,
-    label: category.label,
+    label: isEn
+      ? category.labelEn || category.label || category.labelZh || category.key
+      : category.labelZh || category.label || category.labelEn || category.key,
+    labelZh: category.labelZh || category.label,
+    labelEn: category.labelEn || category.label,
     sites: category.sites.map((site) => ({
-      name: site.name,
+      id: site.id,
+      name: isEn
+        ? site.nameEn || site.name || site.nameZh || site.url
+        : site.nameZh || site.name || site.nameEn || site.url,
+      nameZh: site.nameZh || site.name,
+      nameEn: site.nameEn || site.name,
       url: site.url,
-      description: site.description || '',
+      description: isEn
+        ? site.descriptionEn || site.description || site.descriptionZh || ''
+        : site.descriptionZh || site.description || site.descriptionEn || '',
+      descriptionZh: site.descriptionZh || site.description || '',
+      descriptionEn: site.descriptionEn || site.description || '',
       tags: site.tags,
     })),
   }));

@@ -8,13 +8,19 @@ export default async function AdminNavPage() {
     id: string;
     key: string;
     label: string;
+    labelZh: string | null;
+    labelEn: string | null;
     sortOrder: number;
     sites: Array<{
       id: string;
       categoryId: string;
       name: string;
+      nameZh: string | null;
+      nameEn: string | null;
       url: string;
       description: string | null;
+      descriptionZh: string | null;
+      descriptionEn: string | null;
       tags: string[];
       sortOrder: number;
     }>;

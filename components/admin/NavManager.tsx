@@ -6,8 +6,12 @@ type NavSiteRow = {
   id: string;
   categoryId: string;
   name: string;
+  nameZh: string | null;
+  nameEn: string | null;
   url: string;
   description: string | null;
+  descriptionZh: string | null;
+  descriptionEn: string | null;
   tags: string[];
   sortOrder: number;
 };
@@ -16,34 +20,41 @@ type NavCategoryRow = {
   id: string;
   key: string;
   label: string;
+  labelZh: string | null;
+  labelEn: string | null;
   sortOrder: number;
   sites: NavSiteRow[];
 };
 
 type SiteDraft = {
-  name: string;
+  nameZh: string;
+  nameEn: string;
   url: string;
-  description: string;
+  descriptionZh: string;
+  descriptionEn: string;
   tags: string;
 };
 
 const emptySiteDraft: SiteDraft = {
-  name: '',
+  nameZh: '',
+  nameEn: '',
   url: '',
-  description: '',
+  descriptionZh: '',
+  descriptionEn: '',
   tags: '',
 };
 
 export default function NavManager({ initialCategories }: { initialCategories: NavCategoryRow[] }) {
   const [categories, setCategories] = useState(initialCategories);
-  const [categoryDraft, setCategoryDraft] = useState({ label: '', key: '' });
-  const [categoryForms, setCategoryForms] = useState<Record<string, { label: string; key: string }>>(
+  const [categoryDraft, setCategoryDraft] = useState({ labelZh: '', labelEn: '', key: '' });
+  const [categoryForms, setCategoryForms] = useState<Record<string, { labelZh: string; labelEn: string; key: string }>>(
     () =>
       Object.fromEntries(
         initialCategories.map((category) => [
           category.id,
           {
-            label: category.label,
+            labelZh: category.labelZh || category.label,
+            labelEn: category.labelEn || category.label,
             key: category.key,
           },
         ])
@@ -57,9 +68,11 @@ export default function NavManager({ initialCategories }: { initialCategories: N
           category.sites.map((site) => [
             site.id,
             {
-              name: site.name,
+              nameZh: site.nameZh || site.name,
+              nameEn: site.nameEn || site.name,
               url: site.url,
-              description: site.description || '',
+              descriptionZh: site.descriptionZh || site.description || '',
+              descriptionEn: site.descriptionEn || site.description || '',
               tags: site.tags.join(', '),
             },
           ])
@@ -102,7 +115,8 @@ export default function NavManager({ initialCategories }: { initialCategories: N
         nextCategories.map((category) => [
           category.id,
           {
-            label: category.label,
+            labelZh: category.labelZh || category.label,
+            labelEn: category.labelEn || category.label,
             key: category.key,
           },
         ])
@@ -115,9 +129,11 @@ export default function NavManager({ initialCategories }: { initialCategories: N
           category.sites.map((site) => [
             site.id,
             {
-              name: site.name,
+              nameZh: site.nameZh || site.name,
+              nameEn: site.nameEn || site.name,
               url: site.url,
-              description: site.description || '',
+              descriptionZh: site.descriptionZh || site.description || '',
+              descriptionEn: site.descriptionEn || site.description || '',
               tags: site.tags.join(', '),
             },
           ])
@@ -168,11 +184,17 @@ export default function NavManager({ initialCategories }: { initialCategories: N
     <div className="space-y-6">
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
         <h3 className="text-lg font-medium">新增分类</h3>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
           <input
-            value={categoryDraft.label}
-            onChange={(e) => setCategoryDraft((prev) => ({ ...prev, label: e.target.value }))}
-            placeholder="分类名称，例如：开发工具"
+            value={categoryDraft.labelZh}
+            onChange={(e) => setCategoryDraft((prev) => ({ ...prev, labelZh: e.target.value }))}
+            placeholder="中文分类名，例如：开发工具"
+            className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+          />
+          <input
+            value={categoryDraft.labelEn}
+            onChange={(e) => setCategoryDraft((prev) => ({ ...prev, labelEn: e.target.value }))}
+            placeholder="English category, e.g. Dev Tools"
             className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
           />
           <input
@@ -188,10 +210,11 @@ export default function NavManager({ initialCategories }: { initialCategories: N
           onClick={() =>
             runMutation(async () => {
               await requestJson('/api/nav/categories', 'POST', {
-                label: categoryDraft.label,
+                labelZh: categoryDraft.labelZh,
+                labelEn: categoryDraft.labelEn,
                 key: categoryDraft.key || undefined,
               });
-              setCategoryDraft({ label: '', key: '' });
+              setCategoryDraft({ labelZh: '', labelEn: '', key: '' });
             }, '分类已创建')
           }
           className="mt-4 rounded-xl bg-neutral-900 px-4 py-2.5 text-sm text-white disabled:opacity-60 dark:bg-white dark:text-neutral-900"
@@ -207,21 +230,37 @@ export default function NavManager({ initialCategories }: { initialCategories: N
 
       <div className="space-y-4">
         {categories.map((category, index) => {
-          const form = categoryForms[category.id] || { label: category.label, key: category.key };
+          const form = categoryForms[category.id] || {
+            labelZh: category.labelZh || category.label,
+            labelEn: category.labelEn || category.label,
+            key: category.key,
+          };
           const createForm = siteCreateForms[category.id] || emptySiteDraft;
 
           return (
             <section key={category.id} className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid gap-2 md:grid-cols-[1fr_1fr_220px_auto_auto_auto_auto]">
                 <input
-                  value={form.label}
+                  value={form.labelZh}
                   onChange={(e) =>
                     setCategoryForms((prev) => ({
                       ...prev,
-                      [category.id]: { ...form, label: e.target.value },
+                      [category.id]: { ...form, labelZh: e.target.value },
                     }))
                   }
-                  className="min-w-[180px] flex-1 rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                  placeholder="中文分类名"
+                  className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                />
+                <input
+                  value={form.labelEn}
+                  onChange={(e) =>
+                    setCategoryForms((prev) => ({
+                      ...prev,
+                      [category.id]: { ...form, labelEn: e.target.value },
+                    }))
+                  }
+                  placeholder="English category name"
+                  className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                 />
                 <input
                   value={form.key}
@@ -231,7 +270,7 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                       [category.id]: { ...form, key: e.target.value },
                     }))
                   }
-                  className="w-52 rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                  className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                 />
                 <button
                   type="button"
@@ -269,7 +308,8 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                       async () => {
                         await requestJson('/api/nav/categories', 'PUT', {
                           id: category.id,
-                          label: form.label,
+                          labelZh: form.labelZh,
+                          labelEn: form.labelEn,
                           key: form.key,
                         });
                       },
@@ -278,7 +318,7 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                   }
                   className="rounded-lg bg-neutral-900 px-3 py-2 text-xs text-white disabled:opacity-60 dark:bg-white dark:text-neutral-900"
                 >
-                  保存分类
+                  保存
                 </button>
                 <button
                   type="button"
@@ -295,17 +335,23 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                   }}
                   className="rounded-lg border border-red-200 px-3 py-2 text-xs text-red-600 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
                 >
-                  删除分类
+                  删除
                 </button>
               </div>
 
               <div className="mt-5 rounded-xl border border-dashed border-neutral-300 p-4 dark:border-neutral-700">
                 <div className="mb-3 text-sm font-medium">新增站点</div>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 md:grid-cols-3">
                   <input
-                    value={createForm.name}
-                    onChange={(e) => setSiteCreateDraft(category.id, { name: e.target.value })}
-                    placeholder="站点名称"
+                    value={createForm.nameZh}
+                    onChange={(e) => setSiteCreateDraft(category.id, { nameZh: e.target.value })}
+                    placeholder="中文站点名"
+                    className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                  />
+                  <input
+                    value={createForm.nameEn}
+                    onChange={(e) => setSiteCreateDraft(category.id, { nameEn: e.target.value })}
+                    placeholder="English site name"
                     className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                   />
                   <input
@@ -315,15 +361,21 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                     className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                   />
                   <input
-                    value={createForm.tags}
-                    onChange={(e) => setSiteCreateDraft(category.id, { tags: e.target.value })}
-                    placeholder="标签，用逗号分隔"
+                    value={createForm.descriptionZh}
+                    onChange={(e) => setSiteCreateDraft(category.id, { descriptionZh: e.target.value })}
+                    placeholder="中文简介"
                     className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                   />
                   <input
-                    value={createForm.description}
-                    onChange={(e) => setSiteCreateDraft(category.id, { description: e.target.value })}
-                    placeholder="站点简介"
+                    value={createForm.descriptionEn}
+                    onChange={(e) => setSiteCreateDraft(category.id, { descriptionEn: e.target.value })}
+                    placeholder="English description"
+                    className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+                  />
+                  <input
+                    value={createForm.tags}
+                    onChange={(e) => setSiteCreateDraft(category.id, { tags: e.target.value })}
+                    placeholder="标签，用逗号分隔"
                     className="rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
                   />
                 </div>
@@ -334,9 +386,11 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                     runMutation(async () => {
                       await requestJson('/api/nav/sites', 'POST', {
                         categoryId: category.id,
-                        name: createForm.name,
+                        nameZh: createForm.nameZh,
+                        nameEn: createForm.nameEn,
                         url: createForm.url,
-                        description: createForm.description,
+                        descriptionZh: createForm.descriptionZh,
+                        descriptionEn: createForm.descriptionEn,
                         tags: normalizeTags(createForm.tags),
                       });
                       setSiteCreateForms((prev) => ({ ...prev, [category.id]: emptySiteDraft }));
@@ -351,17 +405,26 @@ export default function NavManager({ initialCategories }: { initialCategories: N
               <div className="mt-5 space-y-3">
                 {category.sites.map((site, siteIndex) => {
                   const siteForm = siteEditForms[site.id] || {
-                    name: site.name,
+                    nameZh: site.nameZh || site.name,
+                    nameEn: site.nameEn || site.name,
                     url: site.url,
-                    description: site.description || '',
+                    descriptionZh: site.descriptionZh || site.description || '',
+                    descriptionEn: site.descriptionEn || site.description || '',
                     tags: site.tags.join(', '),
                   };
                   return (
                     <div key={site.id} className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
-                      <div className="grid gap-2 md:grid-cols-2">
+                      <div className="grid gap-2 md:grid-cols-3">
                         <input
-                          value={siteForm.name}
-                          onChange={(e) => setSiteEditDraft(site.id, { name: e.target.value })}
+                          value={siteForm.nameZh}
+                          onChange={(e) => setSiteEditDraft(site.id, { nameZh: e.target.value })}
+                          placeholder="中文站点名"
+                          className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
+                        />
+                        <input
+                          value={siteForm.nameEn}
+                          onChange={(e) => setSiteEditDraft(site.id, { nameEn: e.target.value })}
+                          placeholder="English site name"
                           className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
                         />
                         <input
@@ -370,13 +433,21 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                           className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
                         />
                         <input
-                          value={siteForm.tags}
-                          onChange={(e) => setSiteEditDraft(site.id, { tags: e.target.value })}
+                          value={siteForm.descriptionZh}
+                          onChange={(e) => setSiteEditDraft(site.id, { descriptionZh: e.target.value })}
+                          placeholder="中文简介"
                           className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
                         />
                         <input
-                          value={siteForm.description}
-                          onChange={(e) => setSiteEditDraft(site.id, { description: e.target.value })}
+                          value={siteForm.descriptionEn}
+                          onChange={(e) => setSiteEditDraft(site.id, { descriptionEn: e.target.value })}
+                          placeholder="English description"
+                          className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
+                        />
+                        <input
+                          value={siteForm.tags}
+                          onChange={(e) => setSiteEditDraft(site.id, { tags: e.target.value })}
+                          placeholder="标签"
                           className="rounded-lg border border-neutral-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-200"
                         />
                       </div>
@@ -424,9 +495,11 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                                 await requestJson('/api/nav/sites', 'PUT', {
                                   id: site.id,
                                   categoryId: category.id,
-                                  name: siteForm.name,
+                                  nameZh: siteForm.nameZh,
+                                  nameEn: siteForm.nameEn,
                                   url: siteForm.url,
-                                  description: siteForm.description,
+                                  descriptionZh: siteForm.descriptionZh,
+                                  descriptionEn: siteForm.descriptionEn,
                                   tags: normalizeTags(siteForm.tags),
                                 });
                               },
@@ -435,7 +508,7 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                           }
                           className="rounded-lg bg-neutral-900 px-3 py-2 text-xs text-white disabled:opacity-60 dark:bg-white dark:text-neutral-900"
                         >
-                          保存站点
+                          保存
                         </button>
                         <button
                           type="button"
@@ -452,7 +525,7 @@ export default function NavManager({ initialCategories }: { initialCategories: N
                           }}
                           className="rounded-lg border border-red-200 px-3 py-2 text-xs text-red-600 disabled:opacity-50 dark:border-red-900/50 dark:text-red-300"
                         >
-                          删除站点
+                          删除
                         </button>
                       </div>
                     </div>

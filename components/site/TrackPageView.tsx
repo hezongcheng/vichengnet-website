@@ -11,11 +11,23 @@ function getVisitorId() {
   return id;
 }
 
+function getLandingReferrer() {
+  const key = 'vichengnet_landing_referrer';
+  const existing = sessionStorage.getItem(key);
+  if (existing !== null) return existing;
+  const first = document.referrer || '';
+  sessionStorage.setItem(key, first);
+  return first;
+}
+
 export default function TrackPageView({ path }: { path: string }) {
   useEffect(() => {
     const visitorId = getVisitorId();
     const sessionId = sessionStorage.getItem('vichengnet_session_id') || crypto.randomUUID();
     sessionStorage.setItem('vichengnet_session_id', sessionId);
+    const landingReferrer = getLandingReferrer();
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source') || '';
 
     fetch('/api/analytics/track', {
       method: 'POST',
@@ -25,6 +37,8 @@ export default function TrackPageView({ path }: { path: string }) {
         visitorId,
         sessionId,
         referer: document.referrer || '',
+        landingReferrer,
+        utmSource,
         userAgent: navigator.userAgent,
       }),
       keepalive: true,

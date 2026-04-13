@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Locale } from '@/lib/i18n/config';
 
 type Props = {
   contentKey: string;
@@ -10,6 +11,7 @@ type Props = {
   initialTitle?: string;
   initialValue?: string;
   type?: string;
+  locale: Locale;
 };
 
 export default function ContentEditorForm({
@@ -19,6 +21,7 @@ export default function ContentEditorForm({
   initialTitle = '',
   initialValue = '',
   type = 'text',
+  locale,
 }: Props) {
   const router = useRouter();
   const [blockTitle, setBlockTitle] = useState(initialTitle);
@@ -32,7 +35,7 @@ export default function ContentEditorForm({
     setMessage('');
     setError('');
 
-    const res = await fetch(`/api/content/${encodeURIComponent(contentKey)}`, {
+    const res = await fetch(`/api/content/${encodeURIComponent(contentKey)}?locale=${locale}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: blockTitle, value, type }),

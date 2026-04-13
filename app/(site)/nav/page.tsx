@@ -6,18 +6,26 @@ import TrackPageView from '@/components/site/TrackPageView';
 import NavDirectory from '@/components/site/nav/NavDirectory';
 import { prisma } from '@/lib/prisma';
 import { defaultNavCategories, mapDbCategoriesToNav } from '@/lib/nav';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
   title: '导航',
   description: '收集常用网站与工具，按主题分组，方便快速访问。',
   alternates: {
     canonical: '/nav',
+    languages: {
+      'zh-CN': '/zh/nav',
+      'en-US': '/en/nav',
+    },
   },
 };
 
 export const dynamic = 'force-dynamic';
 
 export default async function NavPage() {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
+
   let categories = defaultNavCategories;
   try {
     const categoriesRaw = await prisma.navCategory.findMany({
@@ -29,7 +37,7 @@ export default async function NavPage() {
       },
     });
     if (categoriesRaw.length) {
-      categories = mapDbCategoriesToNav(categoriesRaw);
+      categories = mapDbCategoriesToNav(locale, categoriesRaw);
     }
   } catch {
     categories = defaultNavCategories;
@@ -41,9 +49,11 @@ export default async function NavPage() {
       <SiteHeader />
       <Container>
         <section className="border-b border-neutral-200/80 py-12 dark:border-neutral-800/80 md:py-16">
-          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">导航</h1>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{isEn ? 'Directory' : '导航'}</h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-neutral-600 dark:text-neutral-400">
-            参考导航站的信息结构，结合当前站点风格整理的常用链接目录。
+            {isEn
+              ? 'A curated directory of frequently used websites and tools.'
+              : '参考导航站的信息结构，结合当前站点风格整理的常用链接目录。'}
           </p>
           <div className="mt-6 flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
             {categories.map((category) => (

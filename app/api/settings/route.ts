@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { defaultLocale, isLocale } from '@/lib/i18n/config';
 
 type SettingItem = {
   key: string;
@@ -8,9 +9,16 @@ type SettingItem = {
   type?: string;
 };
 
-export async function GET() {
+function getLocale(req: NextRequest) {
+  const localeParam = req.nextUrl.searchParams.get('locale') || '';
+  return isLocale(localeParam) ? localeParam : defaultLocale;
+}
+
+export async function GET(req: NextRequest) {
+  const locale = getLocale(req);
   const items = await prisma.contentBlock.findMany({
     where: {
+      locale,
       key: {
         in: ['site.name', 'site.footer.domain', 'site.footer.icp'],
       },
@@ -21,8 +29,10 @@ export async function GET() {
   return NextResponse.json(items);
 }
 
-export async function POST(req: NextRequest) {
-  const items: SettingItem[] = await req.json();
+export async function PUT(req: NextRequest) {
+  const locale = getLocale(req);
+  const json = await req.json();
+  const items: SettingItem[] = Array.isArray(json?.items) ? json.items : [];
 
   await Promise.all(
     items.map((item: SettingItem) => {
@@ -30,7 +40,12 @@ export async function POST(req: NextRequest) {
       if (!key) return Promise.resolve(null);
 
       return prisma.contentBlock.upsert({
-        where: { key },
+        where: {
+          key_locale: {
+            key,
+            locale,
+          },
+        },
         update: {
           title: item.title,
           value: item.value,
@@ -38,6 +53,7 @@ export async function POST(req: NextRequest) {
         },
         create: {
           key,
+          locale,
           title: item.title,
           value: item.value,
           type: item.type || 'text',

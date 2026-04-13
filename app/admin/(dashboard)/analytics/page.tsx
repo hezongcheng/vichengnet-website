@@ -23,7 +23,7 @@ export default async function AdminAnalyticsPage() {
   const trends = await getDailyTrends(7);
 
   const referrerData = referrers.map((item) => ({
-    name: item.refererHost || 'Direct',
+    name: item.refererHost || 'direct',
     value: item._count.refererHost,
   }));
 
@@ -35,10 +35,22 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border bg-white p-5"><div className="text-sm text-neutral-500">总 PV</div><div className="mt-2 text-3xl font-semibold">{totalPv}</div></div>
-        <div className="rounded-2xl border bg-white p-5"><div className="text-sm text-neutral-500">总 UV</div><div className="mt-2 text-3xl font-semibold">{totalUv}</div></div>
-        <div className="rounded-2xl border bg-white p-5"><div className="text-sm text-neutral-500">来源数</div><div className="mt-2 text-3xl font-semibold">{referrerData.length}</div></div>
-        <div className="rounded-2xl border bg-white p-5"><div className="text-sm text-neutral-500">记录 IP</div><div className="mt-2 text-3xl font-semibold">{visitors.filter((item) => item.ip).length}</div></div>
+        <div className="rounded-2xl border bg-white p-5">
+          <div className="text-sm text-neutral-500">总 PV</div>
+          <div className="mt-2 text-3xl font-semibold">{totalPv}</div>
+        </div>
+        <div className="rounded-2xl border bg-white p-5">
+          <div className="text-sm text-neutral-500">总 UV</div>
+          <div className="mt-2 text-3xl font-semibold">{totalUv}</div>
+        </div>
+        <div className="rounded-2xl border bg-white p-5">
+          <div className="text-sm text-neutral-500">来源数</div>
+          <div className="mt-2 text-3xl font-semibold">{referrerData.length}</div>
+        </div>
+        <div className="rounded-2xl border bg-white p-5">
+          <div className="text-sm text-neutral-500">记录 IP</div>
+          <div className="mt-2 text-3xl font-semibold">{visitors.filter((item) => item.ip).length}</div>
+        </div>
       </div>
 
       <AnalyticsCharts trends={trends} referrers={referrerData} />
@@ -49,7 +61,7 @@ export default async function AdminAnalyticsPage() {
           <div className="mt-4 space-y-3 text-sm">
             {referrers.map((item, index) => (
               <div key={`${item.refererHost}-${index}`} className="flex items-center justify-between">
-                <span>{item.refererHost || 'Direct / Unknown'}</span>
+                <span>{item.refererHost || 'direct'}</span>
                 <span>{item._count.refererHost}</span>
               </div>
             ))}

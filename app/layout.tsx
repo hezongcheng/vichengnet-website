@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   description: '一个简洁、安静、内容优先的个人站点。',
   alternates: {
     canonical: 'https://vichengnet.com',
+    languages: {
+      'zh-CN': '/zh',
+      'en-US': '/en',
+    },
   },
   openGraph: {
     title: '维成小站',

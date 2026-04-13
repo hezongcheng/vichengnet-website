@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { defaultLocale, isLocale } from '@/lib/i18n/config';
+import { localeByCountry } from '@/lib/request-geo';
+
+function isPublicAsset(pathname: string) {
+  return pathname.startsWith('/_next') || pathname.startsWith('/api') || /\.[^/]+$/.test(pathname);
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (isPublicAsset(pathname)) {
+    return NextResponse.next();
+  }
 
   if (pathname.startsWith('/admin/login')) {
     return NextResponse.next();
@@ -20,11 +30,42 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  const firstSegment = pathname.split('/').filter(Boolean)[0] || '';
+  if (isLocale(firstSegment)) {
+    const strippedPath = pathname.slice(firstSegment.length + 1) || '/';
+
+    if (strippedPath.startsWith('/admin')) {
+      const adminUrl = req.nextUrl.clone();
+      adminUrl.pathname = strippedPath;
+      return NextResponse.redirect(adminUrl);
+    }
+
+    const rewriteUrl = req.nextUrl.clone();
+    rewriteUrl.pathname = strippedPath;
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-locale', firstSegment);
+    const res = NextResponse.rewrite(rewriteUrl, {
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    res.cookies.set('NEXT_LOCALE', firstSegment, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    return res;
+  }
+
+  const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value;
+  const preferredLocale =
+    cookieLocale && isLocale(cookieLocale)
+      ? cookieLocale
+      : localeByCountry(req.headers, defaultLocale, req.headers.get('accept-language'));
+  const redirectUrl = req.nextUrl.clone();
+  redirectUrl.pathname = pathname === '/' ? `/${preferredLocale}` : `/${preferredLocale}${pathname}`;
+  return NextResponse.redirect(redirectUrl);
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

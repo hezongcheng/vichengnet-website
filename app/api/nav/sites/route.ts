@@ -21,9 +21,13 @@ export async function POST(req: NextRequest) {
   const created = await prisma.navSite.create({
     data: {
       categoryId: parsed.data.categoryId,
-      name: parsed.data.name.trim(),
+      name: parsed.data.nameZh.trim(),
+      nameZh: parsed.data.nameZh.trim(),
+      nameEn: parsed.data.nameEn.trim(),
       url: parsed.data.url.trim(),
-      description: parsed.data.description?.trim() || '',
+      description: parsed.data.descriptionZh?.trim() || '',
+      descriptionZh: parsed.data.descriptionZh?.trim() || '',
+      descriptionEn: parsed.data.descriptionEn?.trim() || '',
       tags: parsed.data.tags.map((tag) => tag.trim()).filter(Boolean),
       sortOrder: count,
     },
@@ -44,9 +48,13 @@ export async function PUT(req: NextRequest) {
     where: { id: parsed.data.id },
     data: {
       categoryId: parsed.data.categoryId,
-      name: parsed.data.name.trim(),
+      name: parsed.data.nameZh.trim(),
+      nameZh: parsed.data.nameZh.trim(),
+      nameEn: parsed.data.nameEn.trim(),
       url: parsed.data.url.trim(),
-      description: parsed.data.description?.trim() || '',
+      description: parsed.data.descriptionZh?.trim() || '',
+      descriptionZh: parsed.data.descriptionZh?.trim() || '',
+      descriptionEn: parsed.data.descriptionEn?.trim() || '',
       tags: parsed.data.tags.map((tag) => tag.trim()).filter(Boolean),
     },
   });

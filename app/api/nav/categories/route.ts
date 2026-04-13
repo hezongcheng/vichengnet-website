@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   }
 
   const count = await prisma.navCategory.count();
-  const key = normalizeNavCategoryKey(parsed.data.key || parsed.data.label);
+  const key = normalizeNavCategoryKey(parsed.data.key || parsed.data.labelEn || parsed.data.labelZh);
 
   if (!key) {
     return NextResponse.json({ error: '分类标识不能为空' }, { status: 400 });
@@ -42,8 +42,10 @@ export async function POST(req: NextRequest) {
 
   const created = await prisma.navCategory.create({
     data: {
-      label: parsed.data.label.trim(),
       key,
+      label: parsed.data.labelZh.trim(),
+      labelZh: parsed.data.labelZh.trim(),
+      labelEn: parsed.data.labelEn.trim(),
       sortOrder: count,
     },
   });
@@ -78,8 +80,10 @@ export async function PUT(req: NextRequest) {
   const updated = await prisma.navCategory.update({
     where: { id: parsed.data.id },
     data: {
-      label: parsed.data.label.trim(),
       key,
+      label: parsed.data.labelZh.trim(),
+      labelZh: parsed.data.labelZh.trim(),
+      labelEn: parsed.data.labelEn.trim(),
     },
   });
 
