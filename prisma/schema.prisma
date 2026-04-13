@@ -27,15 +27,22 @@ model User {
 model Post {
   id             String     @id @default(cuid())
   title          String
+  titleEn        String?
   slug           String     @unique
   summary        String?
+  summaryEn      String?
   content        String     @db.Text
+  contentEn      String?    @db.Text
   coverImage     String?
   category       String?
+  categoryEn     String?
   tags           String[]
   seoTitle       String?
+  seoTitleEn     String?
   seoDescription String?
+  seoDescriptionEn String?
   seoKeywords    String?
+  seoKeywordsEn  String?
   status         PostStatus @default(DRAFT)
   publishedAt    DateTime?
   createdAt      DateTime   @default(now())

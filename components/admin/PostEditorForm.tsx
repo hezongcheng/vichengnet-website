@@ -8,15 +8,22 @@ import type { Locale } from '@/lib/i18n/config';
 type PostFormValue = {
   id?: string;
   title: string;
+  titleEn?: string;
   slug: string;
   summary?: string;
+  summaryEn?: string;
   content: string;
+  contentEn?: string;
   coverImage?: string;
   category?: string;
+  categoryEn?: string;
   tags: string[];
   seoTitle?: string;
+  seoTitleEn?: string;
   seoDescription?: string;
+  seoDescriptionEn?: string;
   seoKeywords?: string;
+  seoKeywordsEn?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   publishedAt?: string | null;
 };
@@ -49,8 +56,12 @@ export default function PostEditorForm({
         title: 'Title',
         category: 'Category',
         categoryPh: 'e.g. Tech / Notes / Building',
+        categoryEn: 'Category (EN)',
+        categoryEnPh: 'e.g. Tech / Notes / Building',
         summary: 'Summary / Description',
+        summaryEn: 'Summary / Description (EN)',
         content: 'Content',
+        contentEn: 'Content (EN)',
         editor: 'Tiptap Rich Text Editor',
         status: 'Status',
         draft: 'Draft',
@@ -65,8 +76,16 @@ export default function PostEditorForm({
         seoTitle: 'SEO Title',
         seoTitlePh: 'Fallback to post title if empty',
         seoDesc: 'SEO Description',
+        seoDescEn: 'SEO Description (EN)',
         seoDescPh: 'Fallback to summary if empty',
+        seoDescEnPh: 'Fallback to English summary if empty',
         seoKeywordsPh: 'blog, nextjs, frontend',
+        seoKeywordsEnPh: 'blog, nextjs, frontend',
+        titleEn: 'Title (EN)',
+        titleEnPh: 'English title for /en pages',
+        seoTitleEn: 'SEO Title (EN)',
+        seoTitleEnPh: 'Fallback to English title if empty',
+        englishVersion: 'English Version',
         save: mode === 'create' ? 'Create Post' : 'Save Changes',
         saving: 'Saving...',
         remove: 'Delete Post',
@@ -79,8 +98,12 @@ export default function PostEditorForm({
         title: '标题',
         category: '分类',
         categoryPh: '例如：技术 / 随笔 / 建站',
+        categoryEn: '英文分类',
+        categoryEnPh: '例如：Tech / Notes / Building',
         summary: '摘要 / Description',
+        summaryEn: '英文摘要 / Description',
         content: '正文内容',
+        contentEn: '英文正文内容',
         editor: 'Tiptap 富文本编辑器',
         status: '状态',
         draft: '草稿',
@@ -95,8 +118,16 @@ export default function PostEditorForm({
         seoTitle: 'SEO 标题',
         seoTitlePh: '留空时默认使用文章标题',
         seoDesc: 'SEO 描述',
+        seoDescEn: '英文 SEO 描述',
         seoDescPh: '留空时默认使用摘要',
+        seoDescEnPh: '留空时默认使用英文摘要',
         seoKeywordsPh: '个人博客, Next.js, 技术文章',
+        seoKeywordsEnPh: 'blog, nextjs, frontend',
+        titleEn: '英文标题',
+        titleEnPh: '用于 /en 页面展示',
+        seoTitleEn: '英文 SEO 标题',
+        seoTitleEnPh: '留空时默认使用英文标题',
+        englishVersion: '英文版本',
         save: mode === 'create' ? '创建文章' : '保存修改',
         saving: '保存中...',
         remove: '删除文章',
@@ -111,15 +142,22 @@ export default function PostEditorForm({
     () => ({
       id: initialValue?.id,
       title: initialValue?.title || '',
+      titleEn: initialValue?.titleEn || '',
       slug: initialValue?.slug || '',
       summary: initialValue?.summary || '',
+      summaryEn: initialValue?.summaryEn || '',
       content: initialValue?.content || '<p></p>',
+      contentEn: initialValue?.contentEn || '<p></p>',
       coverImage: initialValue?.coverImage || '',
       category: initialValue?.category || '',
+      categoryEn: initialValue?.categoryEn || '',
       tags: initialValue?.tags || [],
       seoTitle: initialValue?.seoTitle || '',
+      seoTitleEn: initialValue?.seoTitleEn || '',
       seoDescription: initialValue?.seoDescription || '',
+      seoDescriptionEn: initialValue?.seoDescriptionEn || '',
       seoKeywords: initialValue?.seoKeywords || '',
+      seoKeywordsEn: initialValue?.seoKeywordsEn || '',
       status: (initialValue?.status as PostFormValue['status']) || 'DRAFT',
       publishedAt: initialValue?.publishedAt || '',
     }),
@@ -200,6 +238,20 @@ export default function PostEditorForm({
           />
         </div>
 
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <label className="mb-2 block text-sm font-medium">{t.titleEn}</label>
+          <input
+            value={form.titleEn || ''}
+            onChange={(e) => {
+              const titleEn = e.target.value;
+              update('titleEn', titleEn);
+              if (!form.seoTitleEn) update('seoTitleEn', titleEn);
+            }}
+            placeholder={t.titleEnPh}
+            className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+          />
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
             <label className="mb-2 block text-sm font-medium">Slug</label>
@@ -221,6 +273,16 @@ export default function PostEditorForm({
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <label className="mb-2 block text-sm font-medium">{t.categoryEn}</label>
+          <input
+            value={form.categoryEn || ''}
+            onChange={(e) => update('categoryEn', e.target.value)}
+            className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+            placeholder={t.categoryEnPh}
+          />
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
           <label className="mb-2 block text-sm font-medium">{t.summary}</label>
           <textarea
             value={form.summary || ''}
@@ -234,11 +296,32 @@ export default function PostEditorForm({
         </div>
 
         <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <label className="mb-2 block text-sm font-medium">{t.summaryEn}</label>
+          <textarea
+            value={form.summaryEn || ''}
+            onChange={(e) => {
+              update('summaryEn', e.target.value);
+              if (!form.seoDescriptionEn) update('seoDescriptionEn', e.target.value);
+            }}
+            rows={4}
+            className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
           <div className="mb-3 flex items-center justify-between gap-3">
             <label className="block text-sm font-medium">{t.content}</label>
             <span className="text-xs text-neutral-500 dark:text-neutral-400">{t.editor}</span>
           </div>
           <RichTextEditor value={form.content} onChange={(value) => update('content', value)} />
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <label className="block text-sm font-medium">{t.contentEn}</label>
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">{t.englishVersion}</span>
+          </div>
+          <RichTextEditor value={form.contentEn || '<p></p>'} onChange={(value) => update('contentEn', value)} />
         </div>
       </div>
 
@@ -343,6 +426,34 @@ export default function PostEditorForm({
               onChange={(e) => update('seoKeywords', e.target.value)}
               className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
               placeholder={t.seoKeywordsPh}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium">{t.seoTitleEn}</label>
+            <input
+              value={form.seoTitleEn || ''}
+              onChange={(e) => update('seoTitleEn', e.target.value)}
+              className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+              placeholder={t.seoTitleEnPh}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium">{t.seoDescEn}</label>
+            <textarea
+              value={form.seoDescriptionEn || ''}
+              onChange={(e) => update('seoDescriptionEn', e.target.value)}
+              rows={4}
+              className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+              placeholder={t.seoDescEnPh}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium">SEO Keywords (EN)</label>
+            <input
+              value={form.seoKeywordsEn || ''}
+              onChange={(e) => update('seoKeywordsEn', e.target.value)}
+              className="w-full rounded-xl border border-neutral-200 bg-transparent px-4 py-3 outline-none focus:border-neutral-900 dark:border-neutral-800 dark:focus:border-neutral-200"
+              placeholder={t.seoKeywordsEnPh}
             />
           </div>
         </div>

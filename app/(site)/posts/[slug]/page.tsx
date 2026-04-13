@@ -18,12 +18,17 @@ import { withLocalePrefix } from '@/lib/i18n/config';
 import { absoluteUrl, SITE_NAME_EN, SITE_NAME_ZH } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
   const post = await prisma.post.findUnique({ where: { slug: params.slug } });
   if (!post) return { title: '文章不存在' };
 
-  const title = post.seoTitle || post.title;
-  const description = post.seoDescription || post.summary || post.title;
-  const keywords = post.seoKeywords?.split(',').map((s) => s.trim()).filter(Boolean);
+  const title = isEn ? post.seoTitleEn || post.titleEn || post.seoTitle || post.title : post.seoTitle || post.title;
+  const description = isEn
+    ? post.seoDescriptionEn || post.summaryEn || post.seoDescription || post.summary || post.titleEn || post.title
+    : post.seoDescription || post.summary || post.title;
+  const keywordRaw = isEn ? post.seoKeywordsEn || post.seoKeywords || '' : post.seoKeywords || '';
+  const keywords = keywordRaw.split(',').map((s) => s.trim()).filter(Boolean);
 
   return {
     title,
@@ -41,7 +46,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description,
       type: 'article',
       url: `/posts/${post.slug}`,
-      images: post.coverImage ? [{ url: post.coverImage, alt: post.title }] : undefined,
+      images: post.coverImage ? [{ url: post.coverImage, alt: isEn ? post.titleEn || post.title : post.title }] : undefined,
     },
     twitter: {
       card: post.coverImage ? 'summary_large_image' : 'summary',
@@ -58,7 +63,20 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
   const post = await prisma.post.findFirst({ where: { slug: params.slug, status: 'PUBLISHED' } });
   if (!post) return notFound();
 
-  const sanitizedHtml = DOMPurify.sanitize(post.content || '');
+  const displayTitle = isEn ? post.titleEn || post.title : post.title;
+  const displaySummary = isEn ? post.summaryEn || post.summary : post.summary;
+  const displayContent = isEn ? post.contentEn || post.content : post.content;
+  const displayCategory = isEn ? post.categoryEn || post.category : post.category;
+  const displaySeoDescription = isEn
+    ? post.seoDescriptionEn || post.summaryEn || post.seoDescription || post.summary || displayTitle
+    : post.seoDescription || post.summary || displayTitle;
+
+  let sanitizedHtml = displayContent || '';
+  try {
+    sanitizedHtml = DOMPurify.sanitize(displayContent || '');
+  } catch {
+    sanitizedHtml = displayContent || '';
+  }
   const htmlWithIds = injectHeadingIds(sanitizedHtml);
   const htmlWithAnchorTargets = htmlWithIds.replace(/<a\b([^>]*)>/gi, (_match, attrs) => {
     const nextAttrs = attrs
@@ -68,7 +86,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
   });
 
   const tocItems = extractTocFromHtml(htmlWithAnchorTargets);
-  const stats = countWordsAndReadingTime(post.content || '');
+  const stats = countWordsAndReadingTime(displayContent || '');
 
   const relatedPosts = post.tags.length
     ? await prisma.post.findMany({
@@ -90,8 +108,8 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: post.title,
-    description: post.seoDescription || post.summary || post.title,
+    headline: displayTitle,
+    description: displaySeoDescription,
     author: {
       '@type': 'Person',
       name: isEn ? 'Vicheng' : '维成',
@@ -106,7 +124,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
     dateModified: new Date(post.updatedAt).toISOString(),
     keywords: post.tags.join(', '),
     image: post.coverImage ? [post.coverImage] : undefined,
-    articleSection: post.category || undefined,
+    articleSection: displayCategory || undefined,
   };
 
   const breadcrumbJsonLd = {
@@ -128,7 +146,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
       {
         '@type': 'ListItem',
         position: 3,
-        name: post.title,
+        name: displayTitle,
         item: postUrl,
       },
     ],
@@ -145,7 +163,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
           <div className="min-w-0 lg:max-w-3xl">
             <article>
               <header className="border-b border-neutral-200/80 pb-8 dark:border-neutral-800/80">
-                <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{post.title}</h1>
+                <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">{displayTitle}</h1>
 
                 <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
                   <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : isEn ? 'Unpublished' : '未发布'}</span>
@@ -157,12 +175,12 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
                   </span>
                 </div>
 
-                {post.summary ? <p className="mt-6 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-400">{post.summary}</p> : null}
+                {displaySummary ? <p className="mt-6 max-w-2xl text-lg leading-8 text-neutral-600 dark:text-neutral-400">{displaySummary}</p> : null}
 
                 <div className="mt-5 flex flex-wrap gap-3 text-sm text-neutral-400 dark:text-neutral-500">
-                  {post.category ? (
-                    <a href={withLocalePrefix(`/categories/${encodeURIComponent(post.category)}`, locale)} className="transition hover:text-neutral-900 dark:hover:text-neutral-100">
-                      /{post.category}
+                  {displayCategory ? (
+                    <a href={withLocalePrefix(`/categories/${encodeURIComponent(displayCategory)}`, locale)} className="transition hover:text-neutral-900 dark:hover:text-neutral-100">
+                      /{displayCategory}
                     </a>
                   ) : null}
                   {post.tags?.map((tag) => (
@@ -174,7 +192,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
 
                 {post.coverImage ? (
                   <div className="mt-8 overflow-hidden rounded-2xl border border-neutral-200/80 dark:border-neutral-800/80">
-                    <img src={post.coverImage} alt={post.title} className="w-full object-cover" />
+                    <img src={post.coverImage} alt={displayTitle} className="w-full object-cover" />
                   </div>
                 ) : null}
               </header>
@@ -193,9 +211,9 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
                   {relatedPosts.map((item) => (
                     <article key={item.id} className="py-5">
                       <a href={withLocalePrefix(`/posts/${item.slug}`, locale)} className="text-lg font-medium tracking-tight transition hover:opacity-70">
-                        {item.title}
+                        {isEn ? item.titleEn || item.title : item.title}
                       </a>
-                      <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">{item.summary}</p>
+                      <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">{isEn ? item.summaryEn || item.summary : item.summary}</p>
                     </article>
                   ))}
                 </div>
