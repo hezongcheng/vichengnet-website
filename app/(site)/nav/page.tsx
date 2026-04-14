@@ -8,20 +8,28 @@ import { prisma } from '@/lib/prisma';
 import { mapDbCategoriesToNav } from '@/lib/nav';
 import { getRequestLocale } from '@/lib/i18n/server';
 
-export const metadata: Metadata = {
-  title: '导航',
-  description: '精选开发、设计、AI 与效率工具网站导航，支持按主题快速查找高质量资源。',
-  keywords: ['网站导航', '开发工具', 'AI 工具', '设计资源', '效率工具'],
-  alternates: {
-    canonical: '/nav',
-    languages: {
-      'zh-CN': '/nav',
-      'en-US': '/en/nav',
-    },
-  },
-};
-
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
+  return {
+    title: isEn ? 'Directory' : '导航',
+    description: isEn
+      ? 'A curated collection of developer tools, AI products, and design resources.'
+      : '精选开发、设计、AI 与效率工具网站导航，支持按主题快速检索高质量资源。',
+    keywords: isEn
+      ? ['directory', 'developer tools', 'ai tools', 'design resources']
+      : ['网站导航', '开发工具', 'AI 工具', '设计资源'],
+    alternates: {
+      canonical: '/nav',
+      languages: {
+        'zh-CN': '/nav',
+        'en-US': '/en/nav',
+      },
+    },
+  };
+}
 
 export default async function NavPage() {
   const locale = getRequestLocale();

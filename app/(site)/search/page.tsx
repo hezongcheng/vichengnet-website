@@ -7,24 +7,30 @@ import SiteFooter from '@/components/site/SiteFooter';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 
-export const metadata: Metadata = {
-  title: '搜索',
-  description: '搜索维成小站的技术文章，快速定位前端开发、AI 工具与建站相关内容。',
-  keywords: ['站内搜索', '技术文章搜索', '前端', 'AI 工具', '建站'],
-  robots: {
-    index: false,
-    follow: true,
-  },
-  alternates: {
-    canonical: '/search',
-    languages: {
-      'zh-CN': '/search',
-      'en-US': '/en/search',
-    },
-  },
-};
-
 type Props = { searchParams?: { q?: string } };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
+  return {
+    title: isEn ? 'Search' : '搜索',
+    description: isEn
+      ? 'Search posts by title, summary, or full content.'
+      : '搜索站内文章标题、摘要与正文内容。',
+    keywords: isEn ? ['search', 'posts', 'content'] : ['站内搜索', '文章搜索'],
+    robots: {
+      index: false,
+      follow: true,
+    },
+    alternates: {
+      canonical: '/search',
+      languages: {
+        'zh-CN': '/search',
+        'en-US': '/en/search',
+      },
+    },
+  };
+}
 
 export default async function SearchPage({ searchParams }: Props) {
   const locale = getRequestLocale();
@@ -35,11 +41,20 @@ export default async function SearchPage({ searchParams }: Props) {
     ? await prisma.post.findMany({
         where: {
           status: 'PUBLISHED',
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { summary: { contains: q, mode: 'insensitive' } },
-            { content: { contains: q, mode: 'insensitive' } },
-          ],
+          OR: isEn
+            ? [
+                { titleEn: { contains: q, mode: 'insensitive' } },
+                { summaryEn: { contains: q, mode: 'insensitive' } },
+                { contentEn: { contains: q, mode: 'insensitive' } },
+                { title: { contains: q, mode: 'insensitive' } },
+                { summary: { contains: q, mode: 'insensitive' } },
+                { content: { contains: q, mode: 'insensitive' } },
+              ]
+            : [
+                { title: { contains: q, mode: 'insensitive' } },
+                { summary: { contains: q, mode: 'insensitive' } },
+                { content: { contains: q, mode: 'insensitive' } },
+              ],
         },
         orderBy: { publishedAt: 'desc' },
         take: 20,
@@ -90,10 +105,10 @@ export default async function SearchPage({ searchParams }: Props) {
                   href={withLocalePrefix(`/posts/${post.slug}`, locale)}
                   className="text-xl font-medium tracking-tight transition hover:opacity-70 md:text-2xl"
                 >
-                  {post.title}
+                  {isEn ? post.titleEn || post.title : post.title}
                 </a>
                 <p className="mt-3 max-w-2xl text-sm leading-8 text-neutral-600 dark:text-neutral-400 md:text-base">
-                  {post.summary}
+                  {isEn ? post.summaryEn || post.summary : post.summary}
                 </p>
               </article>
             ))}

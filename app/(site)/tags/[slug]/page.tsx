@@ -16,11 +16,13 @@ function decodeSlug(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
   const tag = decodeSlug(params.slug);
   return {
-    title: `标签：${tag}`,
-    description: `查看 #${tag} 标签下的全部技术文章。`,
-    keywords: [tag, '标签文章', '技术博客'],
+    title: isEn ? `Tag: ${tag}` : `标签：${tag}`,
+    description: isEn ? `Posts tagged with "${tag}".` : `查看 #${tag} 标签下的全部文章。`,
+    keywords: [tag, isEn ? 'tag posts' : '标签文章'],
   };
 }
 
@@ -57,8 +59,10 @@ export default async function TagPostsPage({ params }: Props) {
             <a key={post.id} href={withLocalePrefix(`/posts/${post.slug}`, locale)} className="block border-t py-5 last:border-b">
               <div className="flex items-start justify-between gap-6">
                 <div className="min-w-0">
-                  <h2 className="text-xl font-semibold tracking-tight">{post.title}</h2>
-                  <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">{post.summary}</p>
+                  <h2 className="text-xl font-semibold tracking-tight">{isEn ? post.titleEn || post.title : post.title}</h2>
+                  <p className="mt-2 text-sm leading-7 text-neutral-600 dark:text-neutral-400">
+                    {isEn ? post.summaryEn || post.summary : post.summary}
+                  </p>
                 </div>
                 <time className="shrink-0 pt-1 text-sm text-neutral-400">
                   {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}

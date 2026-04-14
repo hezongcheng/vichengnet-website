@@ -9,20 +9,26 @@ import { getPathPvMap } from '@/lib/analytics';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 
-export const metadata: Metadata = {
-  title: '文章',
-  description: '浏览维成小站全部技术文章，涵盖前端开发、AI 工具、项目实践与建站经验。',
-  keywords: ['技术文章', '前端开发', 'Next.js', 'AI 工具', '建站'],
-  alternates: {
-    canonical: '/posts',
-    languages: {
-      'zh-CN': '/posts',
-      'en-US': '/en/posts',
-    },
-  },
-};
-
 type Props = { searchParams?: { page?: string } };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
+  return {
+    title: isEn ? 'Articles' : '文章',
+    description: isEn
+      ? 'In-depth posts on frontend engineering, AI tooling, and real-world project lessons.'
+      : '系统记录前端开发、AI 工具实践、建站经验与项目复盘。',
+    keywords: isEn ? ['articles', 'frontend', 'ai tools', 'next.js'] : ['文章', '前端开发', 'AI 工具', 'Next.js'],
+    alternates: {
+      canonical: '/posts',
+      languages: {
+        'zh-CN': '/posts',
+        'en-US': '/en/posts',
+      },
+    },
+  };
+}
 
 export default async function PostsPage({ searchParams }: Props) {
   const locale = getRequestLocale();
@@ -59,47 +65,56 @@ export default async function PostsPage({ searchParams }: Props) {
 
         <section className="py-8 md:py-10">
           <div className="divide-y divide-neutral-200/80 dark:divide-neutral-800/80">
-            {posts.map((post) => (
-              <article key={post.id} className="py-5 md:py-6">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
-                  <div className="min-w-0">
-                    <a
-                      href={withLocalePrefix(`/posts/${post.slug}`, locale)}
-                      className="text-xl font-medium tracking-tight transition hover:opacity-70 md:text-2xl"
-                    >
-                      {post.title}
-                    </a>
-                    <p className="mt-3 max-w-2xl text-sm leading-8 text-neutral-600 dark:text-neutral-400 md:text-base">{post.summary}</p>
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-500">
-                      {post.category ? (
-                        <a
-                          href={withLocalePrefix(`/categories/${encodeURIComponent(post.category)}`, locale)}
-                          className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
-                        >
-                          /{post.category}
-                        </a>
+            {posts.map((post) => {
+              const title = isEn ? post.titleEn || post.title : post.title;
+              const summary = isEn ? post.summaryEn || post.summary : post.summary;
+              const category = isEn ? post.categoryEn || post.category : post.category;
+              return (
+                <article key={post.id} className="py-5 md:py-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
+                    <div className="min-w-0">
+                      <a
+                        href={withLocalePrefix(`/posts/${post.slug}`, locale)}
+                        className="text-xl font-medium tracking-tight transition hover:opacity-70 md:text-2xl"
+                      >
+                        {title}
+                      </a>
+                      {summary ? (
+                        <p className="mt-3 max-w-2xl text-sm leading-8 text-neutral-600 dark:text-neutral-400 md:text-base">
+                          {summary}
+                        </p>
                       ) : null}
-                      {post.tags?.slice(0, 4).map((tag) => (
-                        <a
-                          key={tag}
-                          href={withLocalePrefix(`/tags/${encodeURIComponent(tag)}`, locale)}
-                          className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
-                        >
-                          #{tag}
-                        </a>
-                      ))}
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-500">
+                        {category ? (
+                          <a
+                            href={withLocalePrefix(`/categories/${encodeURIComponent(category)}`, locale)}
+                            className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
+                          >
+                            /{category}
+                          </a>
+                        ) : null}
+                        {post.tags?.slice(0, 4).map((tag) => (
+                          <a
+                            key={tag}
+                            href={withLocalePrefix(`/tags/${encodeURIComponent(tag)}`, locale)}
+                            className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
+                          >
+                            #{tag}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
+                      <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
+                      <div className="mt-2 inline-flex items-center gap-1">
+                        <Eye size={13} />
+                        {pvMap.get(`/posts/${post.slug}`) || 0}
+                      </div>
                     </div>
                   </div>
-                  <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
-                    <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
-                    <div className="mt-2 inline-flex items-center gap-1">
-                      <Eye size={13} />
-                      {pvMap.get(`/posts/${post.slug}`) || 0}
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
           <div className="mt-8 flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400">

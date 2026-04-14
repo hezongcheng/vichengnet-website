@@ -10,18 +10,27 @@ import { getContentBlock } from '@/lib/content';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 
-export const metadata: Metadata = {
-  title: '首页',
-  description: '维成小站首页，持续更新前端开发、AI 工具实践、建站经验与项目复盘内容。',
-  keywords: ['首页', '技术博客', '前端开发', 'AI 工具', '建站经验'],
-  alternates: {
-    canonical: '/',
-    languages: {
-      'zh-CN': '/',
-      'en-US': '/en',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = getRequestLocale();
+  const isEn = locale === 'en';
+
+  return {
+    title: isEn ? 'Home' : '首页',
+    description: isEn
+      ? 'Vicheng Blog homepage with latest frontend, AI tooling, and website engineering posts.'
+      : '维成小站首页，持续更新前端开发、AI 工具实践、建站经验与项目复盘内容。',
+    keywords: isEn
+      ? ['home', 'tech blog', 'frontend', 'AI tools', 'website engineering']
+      : ['首页', '技术博客', '前端开发', 'AI 工具', '建站经验'],
+    alternates: {
+      canonical: '/',
+      languages: {
+        'zh-CN': '/',
+        'en-US': '/en',
+      },
     },
-  },
-};
+  };
+}
 
 export default async function HomePage() {
   const locale = getRequestLocale();
@@ -58,7 +67,10 @@ export default async function HomePage() {
             {heroTitle?.value || (isEn ? 'Vicheng Notes' : '维成小站')}
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-neutral-600 dark:text-neutral-400 md:text-lg">
-            {heroDesc?.value || (isEn ? 'A minimal, content-first tech blog.' : '专注前端开发、AI 工具实践与建站经验的内容型博客。')}
+            {heroDesc?.value ||
+              (isEn
+                ? 'A minimal, content-first tech blog.'
+                : '专注前端开发、AI 工具实践与建站经验的内容型博客。')}
           </p>
         </section>
 
@@ -74,51 +86,56 @@ export default async function HomePage() {
           </div>
 
           <div className="divide-y divide-neutral-200/80 dark:divide-neutral-800/80">
-            {posts.map((post) => (
-              <article key={post.id} className="py-5 md:py-6">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
-                  <div className="min-w-0">
-                    <a
-                      href={withLocalePrefix(`/posts/${post.slug}`, locale)}
-                      className="text-xl font-medium tracking-tight transition hover:opacity-70 md:text-2xl"
-                    >
-                      {post.title}
-                    </a>
-                    {post.summary ? (
-                      <p className="mt-3 max-w-2xl text-sm leading-8 text-neutral-600 dark:text-neutral-400 md:text-base">
-                        {post.summary}
-                      </p>
-                    ) : null}
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-500">
-                      {post.category ? (
-                        <a
-                          href={withLocalePrefix(`/categories/${encodeURIComponent(post.category)}`, locale)}
-                          className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
-                        >
-                          /{post.category}
-                        </a>
+            {posts.map((post) => {
+              const title = isEn ? post.titleEn || post.title : post.title;
+              const summary = isEn ? post.summaryEn || post.summary : post.summary;
+              const category = isEn ? post.categoryEn || post.category : post.category;
+              return (
+                <article key={post.id} className="py-5 md:py-6">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
+                    <div className="min-w-0">
+                      <a
+                        href={withLocalePrefix(`/posts/${post.slug}`, locale)}
+                        className="text-xl font-medium tracking-tight transition hover:opacity-70 md:text-2xl"
+                      >
+                        {title}
+                      </a>
+                      {summary ? (
+                        <p className="mt-3 max-w-2xl text-sm leading-8 text-neutral-600 dark:text-neutral-400 md:text-base">
+                          {summary}
+                        </p>
                       ) : null}
-                      {post.tags?.slice(0, 4).map((tag) => (
-                        <a
-                          key={tag}
-                          href={withLocalePrefix(`/tags/${encodeURIComponent(tag)}`, locale)}
-                          className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
-                        >
-                          #{tag}
-                        </a>
-                      ))}
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-neutral-400 dark:text-neutral-500">
+                        {category ? (
+                          <a
+                            href={withLocalePrefix(`/categories/${encodeURIComponent(category)}`, locale)}
+                            className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
+                          >
+                            /{category}
+                          </a>
+                        ) : null}
+                        {post.tags?.slice(0, 4).map((tag) => (
+                          <a
+                            key={tag}
+                            href={withLocalePrefix(`/tags/${encodeURIComponent(tag)}`, locale)}
+                            className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
+                          >
+                            #{tag}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
+                      <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
+                      <div className="mt-2 inline-flex items-center gap-1">
+                        <Eye size={13} />
+                        {pvMap.get(`/posts/${post.slug}`) || 0}
+                      </div>
                     </div>
                   </div>
-                  <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
-                    <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
-                    <div className="mt-2 inline-flex items-center gap-1">
-                      <Eye size={13} />
-                      {pvMap.get(`/posts/${post.slug}`) || 0}
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -130,32 +147,36 @@ export default async function HomePage() {
             </div>
 
             <div className="divide-y divide-neutral-200/80 dark:divide-neutral-800/80">
-              {popularPosts.map((post) => (
-                <article key={post.id} className="py-5">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
-                    <div className="min-w-0">
-                      <a
-                        href={withLocalePrefix(`/posts/${post.slug}`, locale)}
-                        className="text-lg font-medium tracking-tight transition hover:opacity-70 md:text-xl"
-                      >
-                        {post.title}
-                      </a>
-                      {post.summary ? (
-                        <p className="mt-2 max-w-2xl text-sm leading-7 text-neutral-600 dark:text-neutral-400">
-                          {post.summary}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
-                      <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
-                      <div className="mt-2 inline-flex items-center gap-1">
-                        <Eye size={13} />
-                        {pvMap.get(`/posts/${post.slug}`) || 0}
+              {popularPosts.map((post) => {
+                const title = isEn ? post.titleEn || post.title : post.title;
+                const summary = isEn ? post.summaryEn || post.summary : post.summary;
+                return (
+                  <article key={post.id} className="py-5">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-8">
+                      <div className="min-w-0">
+                        <a
+                          href={withLocalePrefix(`/posts/${post.slug}`, locale)}
+                          className="text-lg font-medium tracking-tight transition hover:opacity-70 md:text-xl"
+                        >
+                          {title}
+                        </a>
+                        {summary ? (
+                          <p className="mt-2 max-w-2xl text-sm leading-7 text-neutral-600 dark:text-neutral-400">
+                            {summary}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="shrink-0 text-sm text-neutral-400 dark:text-neutral-500 md:text-right">
+                        <div>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString(isEn ? 'en-US' : 'zh-CN') : '--'}</div>
+                        <div className="mt-2 inline-flex items-center gap-1">
+                          <Eye size={13} />
+                          {pvMap.get(`/posts/${post.slug}`) || 0}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
         ) : null}
