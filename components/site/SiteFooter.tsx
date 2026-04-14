@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { Github } from 'lucide-react';
 import Container from '@/components/site/Container';
 import { getLocaleFromPathname } from '@/lib/i18n/config';
 import { getMessages } from '@/lib/i18n/messages';
@@ -30,9 +31,25 @@ export default function SiteFooter({
         </div>
         <div className="flex flex-wrap gap-4">
           <span>{domain}</span>
-          <span>{icp}</span>
+          <a
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-neutral-900 dark:hover:text-neutral-100"
+          >
+            {icp}
+          </a>
         </div>
       </Container>
+      <a
+        href="https://github.com/hezongcheng/vichengnet-website"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub repository"
+        className="fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm backdrop-blur transition hover:border-neutral-300 hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-neutral-100"
+      >
+        <Github size={18} />
+      </a>
     </footer>
   );
 }

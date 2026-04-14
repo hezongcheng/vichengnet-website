@@ -1,35 +1,112 @@
-# 维成小站
+# Vichengnet Website
 
-一个基于 Next.js 14 + Prisma + PostgreSQL + NextAuth 的个人网站与后台管理系统。
+A content-first personal website built with Next.js 14, Prisma, PostgreSQL, and NextAuth.
 
-## 功能
+## Tech Stack
 
-- 前台站点：首页、文章、标签、分类、搜索、关于页
-- 后台管理：登录、仪表盘、文章管理、内容管理、SEO、统计
-- 访问统计：PV、UV、来源、IP
-- 富文本：Tiptap 编辑器
-- 评论：Giscus
-- RSS / Sitemap / Robots
-- 暗色模式、阅读进度条、阅读时长
+- Next.js 14 (App Router, TypeScript)
+- Prisma + PostgreSQL
+- NextAuth (admin authentication)
+- Tailwind CSS
+- Tiptap (rich text editor)
+- Giscus (comments)
 
-## 快速开始
+## Main Features
+
+- Public site:
+- Home, Posts, Post detail, Categories, Tags, Search, Projects, About, Nav directory
+- Chinese/English support with locale-aware routes
+- Analytics:
+- PV/UV tracking, referrer and visitor reports, top paths, trend charts
+- Admin panel:
+- Dashboard analytics
+- Post management (create/edit/delete)
+- Project management
+- Directory management
+- Settings management
+- SEO and feeds:
+- Dynamic sitemap (`/sitemap.xml`)
+- RSS (`/rss.xml`)
+- robots (`/robots.txt`)
+
+## Locale Routing
+
+Current route strategy follows a `diygod.cc` style:
+
+- Chinese (default): no prefix  
+  Example: `/posts/giscus-key-getting-guide`
+- English: `/en` prefix  
+  Example: `/en/posts/giscus-key-getting-guide`
+- Legacy Chinese prefix `/zh/*` is redirected to no-prefix paths.
+
+## Quick Start
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Configure environment
 
 ```bash
 cp .env.example .env
-npm install
-npx prisma generate
+```
+
+3. Generate Prisma client and run migrations
+
+```bash
+npm run prisma:generate
 npx prisma migrate dev --name init
+```
+
+4. (Optional) Seed initial data
+
+```bash
 npm run prisma:seed
+```
+
+5. Run dev server
+
+```bash
 npm run dev
 ```
 
-访问：
+Open:
 
-- 前台：http://localhost:3000
-- Sitemap：http://localhost:3000/sitemap.xml
-- 后台：http://localhost:3000/admin
+- Site: `http://localhost:3000`
+- Admin: `http://localhost:3000/admin`
 
-## 提示
+## Scripts
 
-- Giscus 需要你自己填入 `components/site/CommentsGiscus.tsx` 中的仓库配置
-- `/api/upload` 默认写入 `public/uploads`，适合本地开发；生产环境建议切对象存储
+- `npm run dev` - start local dev server
+- `npm run build` - production build
+- `npm run start` - run production server
+- `npm run prisma:generate` - generate Prisma client
+- `npm run prisma:migrate` - create and run migration (dev)
+- `npm run prisma:seed` - seed database
+
+## Required Environment Variables
+
+See `.env.example` and ensure at least:
+
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL` (recommended in production)
+
+## Deployment Notes (Vercel)
+
+- Ensure Prisma client is generated in build pipeline.
+- Keep `prisma/schema.prisma` `binaryTargets` compatible with Vercel runtime.
+- Add all required environment variables in Vercel Project Settings.
+- After deploy, verify:
+- `/sitemap.xml`
+- `/rss.xml`
+- `/en/posts/...` and `/posts/...` article pages
+
+## Frontend Footer Extras
+
+- Bottom-right floating GitHub button links to:
+- `https://github.com/hezongcheng/vichengnet-website`
+- ICP record in footer links to:
+- `https://beian.miit.gov.cn/`
