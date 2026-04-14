@@ -32,6 +32,15 @@ export default function SiteFooter({
         <div className="flex flex-wrap gap-4">
           <span>{domain}</span>
           <a
+            href="https://github.com/hezongcheng/vichengnet-website"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub repository"
+            className="inline-flex items-center text-neutral-500 transition hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+          >
+            <Github size={16} />
+          </a>
+          <a
             href="https://beian.miit.gov.cn/"
             target="_blank"
             rel="noopener noreferrer"
@@ -41,15 +50,6 @@ export default function SiteFooter({
           </a>
         </div>
       </Container>
-      <a
-        href="https://github.com/hezongcheng/vichengnet-website"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="GitHub repository"
-        className="fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 shadow-sm backdrop-blur transition hover:border-neutral-300 hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900/95 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-neutral-100"
-      >
-        <Github size={18} />
-      </a>
     </footer>
   );
 }
