@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Eye } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import DOMPurify from 'isomorphic-dompurify';
 import { prisma } from '@/lib/prisma';
 import Container from '@/components/site/Container';
 import SiteHeader from '@/components/site/SiteHeader';
@@ -16,6 +15,16 @@ import { getPathPvMap } from '@/lib/analytics';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { absoluteUrl, SITE_NAME_EN, SITE_NAME_ZH } from '@/lib/seo';
+
+function sanitizeArticleHtml(html: string) {
+  // Avoid runtime dependency issues in serverless env and strip obvious unsafe markup.
+  return html
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object[\s\S]*?>[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed[\s\S]*?>[\s\S]*?<\/embed>/gi, '')
+    .replace(/\son[a-z]+\s*=\s*(['"]).*?\1/gi, '');
+}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const locale = getRequestLocale();
@@ -71,12 +80,7 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
     ? post.seoDescriptionEn || post.summaryEn || post.seoDescription || post.summary || displayTitle
     : post.seoDescription || post.summary || displayTitle;
 
-  let sanitizedHtml = displayContent || '';
-  try {
-    sanitizedHtml = DOMPurify.sanitize(displayContent || '');
-  } catch {
-    sanitizedHtml = displayContent || '';
-  }
+  const sanitizedHtml = sanitizeArticleHtml(displayContent || '');
   const htmlWithIds = injectHeadingIds(sanitizedHtml);
   const htmlWithAnchorTargets = htmlWithIds.replace(/<a\b([^>]*)>/gi, (_match, attrs) => {
     const nextAttrs = attrs
