@@ -78,7 +78,10 @@ export async function middleware(req: NextRequest) {
         headers: requestHeaders,
       },
     });
-    res.cookies.set('NEXT_LOCALE', firstSegment, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value;
+    if (cookieLocale !== firstSegment) {
+      res.cookies.set('NEXT_LOCALE', firstSegment, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    }
     return res;
   }
 
@@ -94,7 +97,9 @@ export async function middleware(req: NextRequest) {
     cookieLocale && isLocale(cookieLocale)
       ? cookieLocale
       : localeByCountry(req.headers, defaultLocale, req.headers.get('accept-language'));
-  res.cookies.set('NEXT_LOCALE', preferredLocale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+  if (cookieLocale !== preferredLocale) {
+    res.cookies.set('NEXT_LOCALE', preferredLocale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+  }
   return res;
 }
 
