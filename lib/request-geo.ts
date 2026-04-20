@@ -8,6 +8,27 @@ function pickHeader(headers: Headers, keys: string[]) {
   return null;
 }
 
+export function normalizeGeoValue(value: string | null | undefined) {
+  if (!value) return null;
+
+  let text = value.trim().replace(/\+/g, ' ');
+  if (!text) return null;
+
+  // Some edge providers return URL-encoded city names (e.g. Hong%20Kong).
+  for (let i = 0; i < 2; i++) {
+    if (!text.includes('%')) break;
+    try {
+      const decoded = decodeURIComponent(text);
+      if (decoded === text) break;
+      text = decoded;
+    } catch {
+      break;
+    }
+  }
+
+  return text;
+}
+
 export function getCountryCode(headers: Headers) {
   const value = pickHeader(headers, [
     'x-vercel-ip-country',
@@ -19,7 +40,7 @@ export function getCountryCode(headers: Headers) {
 }
 
 export function getCity(headers: Headers) {
-  return pickHeader(headers, ['x-vercel-ip-city', 'x-geo-city', 'x-city']);
+  return normalizeGeoValue(pickHeader(headers, ['x-vercel-ip-city', 'x-geo-city', 'x-city']));
 }
 
 export function isMainlandChina(countryCode: string | null) {

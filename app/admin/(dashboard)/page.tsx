@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getDailyTrends } from '@/lib/analytics';
 import AnalyticsCharts from '@/components/admin/AnalyticsCharts';
 import { getAdminLocale } from '@/lib/i18n/admin';
+import { normalizeGeoValue } from '@/lib/request-geo';
 
 type Props = {
   searchParams?: {
@@ -188,7 +189,8 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-4">
                   <span className="truncate font-medium">{item.ip || 'Unknown IP'}</span>
                   <span className="truncate whitespace-nowrap text-neutral-500 dark:text-neutral-400">
-                    {[item.country, item.city].filter(Boolean).join(' / ') || (isEn ? 'Unknown area' : '未知地区')}
+                    {[normalizeGeoValue(item.country), normalizeGeoValue(item.city)].filter(Boolean).join(' / ') ||
+                      (isEn ? 'Unknown area' : '未知地区')}
                   </span>
                 </div>
                 <span>{item._count.ip}</span>
