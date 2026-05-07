@@ -39,7 +39,7 @@ export default function AdminLoginClient({ locale }: { locale: Locale }) {
     [locale]
   );
 
-  const [email, setEmail] = useState('admin@vichengnet.com');
+  const [email, setEmail] = useState('936451609@qq.com');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +86,7 @@ export default function AdminLoginClient({ locale }: { locale: Locale }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                placeholder="admin@vichengnet.com"
+                placeholder=""
               />
             </div>
 
